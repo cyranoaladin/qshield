@@ -14,5 +14,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@quantalayer/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.0"
   }
 }

@@ -110,7 +110,15 @@ importers:
         specifier: 3.4.19
         version: 3.4.19(tsx@4.23.0)
 
-  packages/scoring: {}
+  packages/scoring:
+    dependencies:
+      '@quantalayer/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: 26.1.0
+        version: 26.1.0
 
   packages/shared:
     dependencies:
