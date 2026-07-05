@@ -13,8 +13,8 @@ Done — commit `e4957c9` on `lot/01-monorepo-scaffold`. pnpm workspaces, Next.j
 Done — commit `951c45d` on `lot/02-shared-foundations`. Zod env validation (fail-closed, production vs development semantics, `assertScanProviderEnv`), typed errors + RFC 7807 serializer, shared constants, `docs/env.md`.
 Debt paid in LOT-03 Part A: topological build order, warn-by-default `parseEnv`, server/web env schema split.
 
-### [~] LOT-03 — CI/CD + LOT-02 debt
-In progress. Part A: remove nested shared builds, `pnpm -r` topological for build/typecheck/test/coverage, default console warnings in `parseEnv` (tests inject silent handler), split `parseServerEnv` / `parseWebEnv` (API must boot without any `NEXT_PUBLIC_*`). Part B: coverage thresholds (90) enforced in `@qshield/scoring` vitest config, GitHub Actions workflow (PR + push main, frozen lockfile, pnpm cache, ordered gates, non-blocking audit job), `docs/ci.md` with branch-protection recommendations.
+### [x] LOT-03 — CI/CD + LOT-02 debt
+Done — commits `3fdf029` (Part A) + `9705294` (Part B) on `lot/03-ci`, merged into main. Part A: remove nested shared builds, `pnpm -r` topological for build/typecheck/test/coverage, default console warnings in `parseEnv` (tests inject silent handler), split `parseServerEnv` / `parseWebEnv` (API must boot without any `NEXT_PUBLIC_*`). Part B: coverage thresholds (90) enforced in `@qshield/scoring` vitest config, GitHub Actions workflow (PR + push main, frozen lockfile, pnpm cache, ordered gates, non-blocking audit job), `docs/ci.md` with branch-protection recommendations.
 **Acceptance:** clean-state double `pnpm build` with no race; `env -i` boot proof without NEXT_PUBLIC_*; local simulation of exact CI sequence pasted in report.
 
 ### [ ] LOT-3.5 — Normative documentation pack
