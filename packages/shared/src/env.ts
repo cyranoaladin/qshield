@@ -2,6 +2,28 @@ import { z } from "zod";
 
 import { QShieldError } from "./errors.js";
 
+export const SERVER_ENV_KEYS = [
+  "NODE_ENV",
+  "API_PORT",
+  "API_CORS_ORIGIN",
+  "HELIUS_API_KEY",
+  "HELIUS_RPC_URL",
+  "SOLANA_CLUSTER",
+  "JUPITER_PRICE_URL",
+  "DATABASE_URL",
+  "REDIS_URL",
+  "SCAN_CACHE_TTL_SECONDS",
+  "RATE_LIMIT_SCANS_PER_MINUTE",
+  "SENTRY_DSN",
+  "LOG_LEVEL",
+] as const;
+
+export const WEB_ENV_KEYS = [
+  "NODE_ENV",
+  "NEXT_PUBLIC_API_URL",
+  "NEXT_PUBLIC_PLAUSIBLE_DOMAIN",
+] as const;
+
 export const ENV_KEYS = [
   "NODE_ENV",
   "API_PORT",
@@ -21,7 +43,12 @@ export const ENV_KEYS = [
 ] as const;
 
 export type EnvKey = (typeof ENV_KEYS)[number];
+export type ServerEnvKey = (typeof SERVER_ENV_KEYS)[number];
+export type WebEnvKey = (typeof WEB_ENV_KEYS)[number];
+
 export type RawEnv = Record<EnvKey, string | undefined>;
+export type RawServerEnv = Record<ServerEnvKey, string | undefined>;
+export type RawWebEnv = Record<WebEnvKey, string | undefined>;
 
 export type EnvWarningSeverity = "optional" | "deferred-required";
 
@@ -35,7 +62,7 @@ export type ParseEnvOptions = {
   readonly onWarning?: (warning: EnvWarning) => void;
 };
 
-export type Env = {
+export type ServerEnv = {
   readonly apiCorsOrigin: string;
   readonly apiPort: number;
   readonly databaseUrl: string;
@@ -43,8 +70,6 @@ export type Env = {
   readonly heliusRpcUrl: string;
   readonly jupiterPriceUrl: string;
   readonly logLevel: LogLevel;
-  readonly nextPublicApiUrl: string;
-  readonly nextPublicPlausibleDomain?: string;
   readonly nodeEnv: NodeEnv;
   readonly rateLimitScansPerMinute: number;
   readonly redisUrl: string;
@@ -53,7 +78,15 @@ export type Env = {
   readonly solanaCluster: SolanaCluster;
 };
 
-export type EnvWithScanProvider = Env & {
+export type WebEnv = {
+  readonly nextPublicApiUrl: string;
+  readonly nextPublicPlausibleDomain?: string;
+  readonly nodeEnv: NodeEnv;
+};
+
+export type Env = ServerEnv & WebEnv;
+
+export type EnvWithScanProvider = ServerEnv & {
   readonly heliusApiKey: string;
 };
 
@@ -82,6 +115,9 @@ export class EnvValidationError extends QShieldError {
   }
 }
 
+const nodeEnvSchema = z.enum(["development", "production", "test"]);
+const logLevelSchema = z.enum(["debug", "error", "fatal", "info", "silent", "trace", "warn"]);
+
 const integerEnv = (variable: EnvKey, min: number, max: number) =>
   z
     .string()
@@ -105,7 +141,7 @@ const optionalUrl = (variable: EnvKey) =>
     z.string().trim().url(`${variable} must be a valid URL`).optional(),
   );
 
-const rawEnvSchema = z
+const serverEnvSchema = z
   .object({
     API_CORS_ORIGIN: requiredUrl("API_CORS_ORIGIN"),
     API_PORT: integerEnv("API_PORT", 1, 65_535),
@@ -113,10 +149,8 @@ const rawEnvSchema = z
     HELIUS_API_KEY: optionalString,
     HELIUS_RPC_URL: requiredUrl("HELIUS_RPC_URL"),
     JUPITER_PRICE_URL: requiredUrl("JUPITER_PRICE_URL"),
-    LOG_LEVEL: z.enum(["debug", "error", "fatal", "info", "silent", "trace", "warn"]),
-    NEXT_PUBLIC_API_URL: requiredUrl("NEXT_PUBLIC_API_URL"),
-    NEXT_PUBLIC_PLAUSIBLE_DOMAIN: optionalString,
-    NODE_ENV: z.enum(["development", "production", "test"]),
+    LOG_LEVEL: logLevelSchema,
+    NODE_ENV: nodeEnvSchema,
     RATE_LIMIT_SCANS_PER_MINUTE: integerEnv("RATE_LIMIT_SCANS_PER_MINUTE", 1, 10_000),
     REDIS_URL: requiredUrl("REDIS_URL"),
     SCAN_CACHE_TTL_SECONDS: integerEnv("SCAN_CACHE_TTL_SECONDS", 1, 86_400),
@@ -133,29 +167,29 @@ const rawEnvSchema = z
     }
   });
 
-export function parseEnv(
+const webEnvSchema = z.object({
+  NEXT_PUBLIC_API_URL: requiredUrl("NEXT_PUBLIC_API_URL"),
+  NEXT_PUBLIC_PLAUSIBLE_DOMAIN: optionalString,
+  NODE_ENV: nodeEnvSchema,
+});
+
+export function parseServerEnv(
   source: Record<string, string | undefined>,
   options: ParseEnvOptions = {},
-): Env {
-  const parsed = rawEnvSchema.safeParse(pickEnv(source));
+): ServerEnv {
+  const parsed = serverEnvSchema.safeParse(pickEnv(source, SERVER_ENV_KEYS));
 
   if (!parsed.success) {
-    throw new EnvValidationError(
-      parsed.error.issues.map((issue) => ({
-        message: issue.message,
-        variable: envKeyFromPath(issue.path),
-      })),
-    );
+    throw envValidationError(parsed.error);
   }
 
-  const env: Env = {
+  const env: ServerEnv = {
     apiCorsOrigin: parsed.data.API_CORS_ORIGIN,
     apiPort: parsed.data.API_PORT,
     databaseUrl: parsed.data.DATABASE_URL,
     heliusRpcUrl: parsed.data.HELIUS_RPC_URL,
     jupiterPriceUrl: parsed.data.JUPITER_PRICE_URL,
     logLevel: parsed.data.LOG_LEVEL,
-    nextPublicApiUrl: parsed.data.NEXT_PUBLIC_API_URL,
     nodeEnv: parsed.data.NODE_ENV,
     rateLimitScansPerMinute: parsed.data.RATE_LIMIT_SCANS_PER_MINUTE,
     redisUrl: parsed.data.REDIS_URL,
@@ -164,18 +198,51 @@ export function parseEnv(
     ...(parsed.data.HELIUS_API_KEY === undefined
       ? {}
       : { heliusApiKey: parsed.data.HELIUS_API_KEY }),
-    ...(parsed.data.NEXT_PUBLIC_PLAUSIBLE_DOMAIN === undefined
-      ? {}
-      : { nextPublicPlausibleDomain: parsed.data.NEXT_PUBLIC_PLAUSIBLE_DOMAIN }),
     ...(parsed.data.SENTRY_DSN === undefined ? {} : { sentryDsn: parsed.data.SENTRY_DSN }),
   };
 
-  emitDevelopmentWarnings(env, options.onWarning ?? ignoreWarning);
+  emitServerDevelopmentWarnings(env, options.onWarning ?? warnToConsole);
 
   return env;
 }
 
-export function assertScanProviderEnv(env: Env): asserts env is EnvWithScanProvider {
+export function parseWebEnv(
+  source: Record<string, string | undefined>,
+  options: ParseEnvOptions = {},
+): WebEnv {
+  const parsed = webEnvSchema.safeParse(pickEnv(source, WEB_ENV_KEYS));
+
+  if (!parsed.success) {
+    throw envValidationError(parsed.error);
+  }
+
+  const env: WebEnv = {
+    nextPublicApiUrl: parsed.data.NEXT_PUBLIC_API_URL,
+    nodeEnv: parsed.data.NODE_ENV,
+    ...(parsed.data.NEXT_PUBLIC_PLAUSIBLE_DOMAIN === undefined
+      ? {}
+      : { nextPublicPlausibleDomain: parsed.data.NEXT_PUBLIC_PLAUSIBLE_DOMAIN }),
+  };
+
+  emitWebDevelopmentWarnings(env, options.onWarning ?? warnToConsole);
+
+  return env;
+}
+
+export function parseEnv(
+  source: Record<string, string | undefined>,
+  options: ParseEnvOptions = {},
+): Env {
+  const serverEnv = parseServerEnv(source, options);
+  const webEnv = parseWebEnv(source, options);
+
+  return {
+    ...serverEnv,
+    ...webEnv,
+  };
+}
+
+export function assertScanProviderEnv(env: ServerEnv): asserts env is EnvWithScanProvider {
   if (env.heliusApiKey === undefined) {
     throw new EnvValidationError([
       {
@@ -198,8 +265,23 @@ function emptyStringToUndefined(value: unknown): unknown {
   return value;
 }
 
-function pickEnv(source: Record<string, string | undefined>): RawEnv {
-  return Object.fromEntries(ENV_KEYS.map((key) => [key, source[key]])) as RawEnv;
+function pickEnv<Key extends EnvKey>(
+  source: Record<string, string | undefined>,
+  keys: readonly Key[],
+): Record<Key, string | undefined> {
+  return Object.fromEntries(keys.map((key) => [key, source[key]])) as Record<
+    Key,
+    string | undefined
+  >;
+}
+
+function envValidationError(error: z.ZodError): EnvValidationError {
+  return new EnvValidationError(
+    error.issues.map((issue) => ({
+      message: issue.message,
+      variable: envKeyFromPath(issue.path),
+    })),
+  );
 }
 
 function envKeyFromPath(path: readonly PropertyKey[]): EnvValidationIssue["variable"] {
@@ -216,7 +298,10 @@ function isEnvKey(value: string): value is EnvKey {
   return ENV_KEYS.some((key) => key === value);
 }
 
-function emitDevelopmentWarnings(env: Env, onWarning: (warning: EnvWarning) => void): void {
+function emitServerDevelopmentWarnings(
+  env: ServerEnv,
+  onWarning: (warning: EnvWarning) => void,
+): void {
   if (env.nodeEnv !== "development") {
     return;
   }
@@ -229,14 +314,6 @@ function emitDevelopmentWarnings(env: Env, onWarning: (warning: EnvWarning) => v
     });
   }
 
-  if (env.nextPublicPlausibleDomain === undefined) {
-    onWarning({
-      message: "Plausible analytics is disabled until this optional value is set.",
-      severity: "optional",
-      variable: "NEXT_PUBLIC_PLAUSIBLE_DOMAIN",
-    });
-  }
-
   if (env.sentryDsn === undefined) {
     onWarning({
       message: "Sentry reporting is disabled until this optional value is set.",
@@ -246,6 +323,20 @@ function emitDevelopmentWarnings(env: Env, onWarning: (warning: EnvWarning) => v
   }
 }
 
-function ignoreWarning(): void {
-  return;
+function emitWebDevelopmentWarnings(env: WebEnv, onWarning: (warning: EnvWarning) => void): void {
+  if (env.nodeEnv !== "development") {
+    return;
+  }
+
+  if (env.nextPublicPlausibleDomain === undefined) {
+    onWarning({
+      message: "Plausible analytics is disabled until this optional value is set.",
+      severity: "optional",
+      variable: "NEXT_PUBLIC_PLAUSIBLE_DOMAIN",
+    });
+  }
+}
+
+function warnToConsole(warning: EnvWarning): void {
+  console.warn(formatEnvWarning(warning));
 }

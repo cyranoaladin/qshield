@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EnvValidationError, type RawEnv } from "@qshield/shared";
+import { EnvValidationError, type RawServerEnv } from "@qshield/shared";
 
 import { readApiConfig } from "./config.js";
 
@@ -12,15 +12,13 @@ const validEnv = {
   HELIUS_RPC_URL: "https://mainnet.helius-rpc.com",
   JUPITER_PRICE_URL: "https://api.jup.ag/price/v2",
   LOG_LEVEL: "info",
-  NEXT_PUBLIC_API_URL: "http://localhost:3001",
-  NEXT_PUBLIC_PLAUSIBLE_DOMAIN: "",
   NODE_ENV: "production",
   RATE_LIMIT_SCANS_PER_MINUTE: "10",
   REDIS_URL: "redis://localhost:6379",
   SCAN_CACHE_TTL_SECONDS: "3600",
   SENTRY_DSN: "",
   SOLANA_CLUSTER: "mainnet-beta",
-} satisfies RawEnv;
+} satisfies RawServerEnv;
 
 describe("readApiConfig", () => {
   it("returns API boot config from the shared env parser", () => {
@@ -41,5 +39,12 @@ describe("readApiConfig", () => {
         API_PORT: "",
       }),
     ).toThrow(EnvValidationError);
+  });
+
+  it("does not require NEXT_PUBLIC variables for API boot", () => {
+    expect(readApiConfig(validEnv)).toMatchObject({
+      corsOrigin: "http://localhost:3000",
+      port: 3001,
+    });
   });
 });

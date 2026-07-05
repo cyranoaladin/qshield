@@ -11,10 +11,10 @@
   "scripts": {
     "dev": "pnpm -r --parallel --filter @qshield/web --filter @qshield/api dev",
     "lint": "prettier --check . && eslint .",
-    "typecheck": "pnpm -r --parallel typecheck",
-    "test": "pnpm -r --parallel test",
-    "test:coverage": "pnpm -r --parallel test:coverage",
-    "build": "pnpm -r --parallel build"
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:coverage": "pnpm -r test:coverage",
+    "build": "pnpm -r build"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
