@@ -7,7 +7,8 @@ describe("getMessages", () => {
     const messages = getMessages("fr");
 
     expect(messages.home.primaryAction).toBe("Scanner une adresse");
-    expect(messages.metadata.title).toBe("Q-Shield");
+    expect(messages.home.eyebrow).toBe("Post-Quantum Readiness for Solana");
+    expect(messages.metadata.title).toBe("QuantaLayer");
   });
 
   it("keeps English secondary locale content available", () => {
@@ -15,5 +16,6 @@ describe("getMessages", () => {
 
     expect(messages.home.primaryAction).toBe("Scan address");
     expect(messages.metadata.description).toContain("Solana");
+    expect(messages.metadata.description).toContain("readiness");
   });
 });

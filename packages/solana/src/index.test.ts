@@ -6,7 +6,7 @@ describe("solana package scaffold", () => {
   it("is explicitly scaffolded without data-layer I/O before LOT-05", () => {
     expect(SOLANA_PACKAGE_STATUS).toEqual({
       implemented: false,
-      packageName: "@qshield/solana",
+      packageName: "@quantalayer/solana",
     });
   });
 });

@@ -2,29 +2,31 @@ export const messages = {
   en: {
     home: {
       description:
-        "Measure a Solana address exposure to future quantum attacks before moving assets into safer flows.",
-      eyebrow: "Q-Scan MVP foundation",
+        "Measure Solana migration criticality with QES/QCI before planning post-quantum readiness work.",
+      eyebrow: "Post-Quantum Readiness for Solana",
+      logoAlt: "QuantaLayer logo",
       primaryAction: "Scan address",
-      secondaryAction: "Learn why",
-      title: "Q-Shield",
+      secondaryAction: "Read the research note",
+      title: "QuantaLayer",
     },
     metadata: {
-      description: "Quantum exposure scanning foundation for Solana accounts.",
-      title: "Q-Shield",
+      description: "Post-quantum readiness layer for Solana accounts and authorities.",
+      title: "QuantaLayer",
     },
   },
   fr: {
     home: {
       description:
-        "Mesurez l'exposition d'une adresse Solana aux futures attaques quantiques avant de déplacer les actifs vers des parcours plus sûrs.",
-      eyebrow: "Fondation MVP Q-Scan",
+        "Mesurez la criticité de migration Solana avec QES/QCI avant de préparer une stratégie post-quantique.",
+      eyebrow: "Post-Quantum Readiness for Solana",
+      logoAlt: "Logo QuantaLayer",
       primaryAction: "Scanner une adresse",
-      secondaryAction: "Comprendre le risque",
-      title: "Q-Shield",
+      secondaryAction: "Lire la note de recherche",
+      title: "QuantaLayer",
     },
     metadata: {
-      description: "Fondation du scanner d'exposition quantique pour les comptes Solana.",
-      title: "Q-Shield",
+      description: "Couche de préparation post-quantique pour comptes et authorities Solana.",
+      title: "QuantaLayer",
     },
   },
 } as const;

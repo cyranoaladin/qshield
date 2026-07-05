@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { QShieldError, ValidationError, toProblemJson } from "./errors.js";
+import { QuantaLayerError, ValidationError, toProblemJson } from "./errors.js";
 
 describe("toProblemJson", () => {
   it("serializes typed errors as RFC 7807 problem details", () => {
@@ -14,7 +14,7 @@ describe("toProblemJson", () => {
       instance: "/api/v1/scan",
       status: 400,
       title: "Invalid request body",
-      type: "https://qshield.app/problems/validation-error",
+      type: "https://quantalayer.app/problems/validation-error",
     });
   });
 
@@ -23,12 +23,12 @@ describe("toProblemJson", () => {
       code: "INTERNAL_SERVER_ERROR",
       status: 500,
       title: "Internal Server Error",
-      type: "https://qshield.app/problems/internal-server-error",
+      type: "https://quantalayer.app/problems/internal-server-error",
     });
   });
 
-  it("preserves status and code from custom Q-Shield errors", () => {
-    const error = new QShieldError("Upstream rejected response", {
+  it("preserves status and code from custom QuantaLayer errors", () => {
+    const error = new QuantaLayerError("Upstream rejected response", {
       code: "UPSTREAM_DATA_ERROR",
       detail: "Helius response did not match schema",
       status: 502,

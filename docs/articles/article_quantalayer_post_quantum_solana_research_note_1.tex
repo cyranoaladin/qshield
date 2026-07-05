@@ -1,0 +1,917 @@
+\documentclass[11pt,a4paper,oneside,parskip=false]{scrartcl}
+
+% ---------- Engine and fonts ----------
+\usepackage{iftex}
+\ifXeTeX\else
+  \ifLuaTeX\else
+    \errmessage{This document requires XeLaTeX or LuaLaTeX}
+  \fi
+\fi
+
+\usepackage{fontspec}
+\IfFontExistsTF{Libertinus Serif}
+  {\setmainfont{Libertinus Serif}}
+  {\setmainfont{TeX Gyre Termes}}
+\IfFontExistsTF{Inter}
+  {\setsansfont{Inter}}
+  {\setsansfont{TeX Gyre Heros}}
+\IfFontExistsTF{JetBrains Mono}
+  {\setmonofont{JetBrains Mono}[Scale=0.88]}
+  {\setmonofont{DejaVu Sans Mono}[Scale=0.88]}
+
+\usepackage{unicode-math}
+\IfFontExistsTF{Libertinus Math}
+  {\setmathfont{Libertinus Math}}
+  {\setmathfont{TeX Gyre Termes Math}}
+
+% ---------- Language and typography ----------
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguage{french}
+\usepackage{csquotes}
+\usepackage[final]{microtype}
+\emergencystretch=3em
+\hbadness=10000
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+% ---------- Page geometry ----------
+\usepackage[
+  a4paper,
+  top=24mm,
+  bottom=28mm,
+  left=27mm,
+  right=27mm,
+  headheight=18pt,
+  headsep=8mm,
+  footskip=12mm
+]{geometry}
+\setlength{\parindent}{1.15em}
+\setlength{\parskip}{0pt}
+\linespread{1.035}
+
+% ---------- Colors ----------
+\usepackage{xcolor}
+\definecolor{QLBlue}{HTML}{143D59}
+\definecolor{QLTeal}{HTML}{2A9D8F}
+\definecolor{QLInk}{HTML}{1F2933}
+\definecolor{QLMuted}{HTML}{56636F}
+\definecolor{QLRule}{HTML}{D7DEE5}
+\definecolor{QLSoft}{HTML}{F4F8FA}
+\definecolor{QLCode}{HTML}{F7F7F8}
+\definecolor{QLWarn}{HTML}{FFF8E6}
+
+% ---------- Graphics and logo commands ----------
+\usepackage{graphicx}
+\newcommand{\QuantaLayerLogoHorizontal}[1][0.46\textwidth]{%
+  \IfFileExists{../../public/images/logo_nom.png}
+    {\includegraphics[width=#1]{../../public/images/logo_nom.png}}
+    {\PackageError{quantalayer}{Missing ../../public/images/logo_nom.png}{Add the QuantaLayer horizontal logo before compiling}}%
+}
+\newcommand{\QuantaLayerLogoMark}[1][8mm]{%
+  \IfFileExists{../../public/images/logo.png}
+    {\includegraphics[width=#1]{../../public/images/logo.png}}
+    {\PackageError{quantalayer}{Missing ../../public/images/logo.png}{Add the QuantaLayer mark before compiling}}%
+}
+
+% ---------- Headers and footers ----------
+\usepackage{scrlayer-scrpage}
+\clearpairofpagestyles
+\ihead{\sffamily\small\color{QLMuted}\raisebox{-0.16\height}{\QuantaLayerLogoMark[4.6mm]}\hspace{0.45em}QuantaLayer Research Note \#1}
+\ohead{\sffamily\small\color{QLMuted}Post-Quantum Readiness for Solana}
+\cfoot{\sffamily\small\color{QLMuted}\pagemark}
+\KOMAoptions{headsepline=true}
+\addtokomafont{headsepline}{\color{QLRule}}
+\setkomafont{pageheadfoot}{\normalfont}
+
+% ---------- Section style ----------
+\setkomafont{disposition}{\sffamily\bfseries}
+\setkomafont{section}{\Large\sffamily\bfseries\color{QLBlue}}
+\setkomafont{subsection}{\large\sffamily\bfseries\color{QLInk}}
+\setkomafont{subsubsection}{\normalsize\sffamily\bfseries\color{QLInk}}
+\RedeclareSectionCommand[beforeskip=2.6ex plus .4ex,afterskip=1.0ex]{section}
+\RedeclareSectionCommand[beforeskip=1.9ex plus .3ex,afterskip=0.7ex]{subsection}
+\RedeclareSectionCommand[beforeskip=1.3ex plus .2ex,afterskip=0.55ex]{subsubsection}
+
+% ---------- Tables and lists ----------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{makecell}
+\usepackage{ragged2e}
+\usepackage{caption}
+\captionsetup{font=small,labelfont={bf,color=QLBlue}}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{5pt}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\usepackage{enumitem}
+\setlist{leftmargin=*,itemsep=2pt,topsep=4pt}
+\usepackage[section]{placeins}
+\usepackage{needspace}
+
+% ---------- Boxes and code ----------
+\usepackage[most]{tcolorbox}
+\tcbset{
+  enhanced,
+  arc=1.2mm,
+  boxrule=0.45pt,
+  left=8pt,
+  right=8pt,
+  top=7pt,
+  bottom=7pt
+}
+\newtcolorbox{statusbox}{colback=QLSoft,colframe=QLRule}
+\newtcolorbox{takeawaybox}{colback=QLSoft,colframe=QLTeal}
+\newtcolorbox{warningbox}{colback=QLWarn,colframe=QLRule}
+
+\usepackage{listings}
+\lstdefinelanguage{json}{
+  basicstyle=\ttfamily\small,
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true
+}
+\lstdefinestyle{qlcode}{
+  backgroundcolor=\color{QLCode},
+  frame=single,
+  rulecolor=\color{QLRule},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  framesep=6pt
+}
+\lstset{style=qlcode}
+
+% ---------- Math ----------
+\usepackage{amsmath}
+
+% ---------- Bibliography ----------
+\usepackage[
+  backend=biber,
+  style=numeric,
+  sorting=none,
+  maxnames=6,
+  doi=true,
+  url=true,
+  isbn=false
+]{biblatex}
+\addbibresource{article_quantalayer_references.bib}
+\setlength\bibitemsep{0.45\baselineskip}
+\AtBeginBibliography{\small\RaggedRight\sloppy}
+
+% ---------- Hyperlinks and PDF metadata ----------
+\usepackage{xurl}
+\Urlmuskip=0mu plus 1mu
+\usepackage{hyperref}
+\usepackage{hyperxmp}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=QLBlue,
+  urlcolor=QLTeal,
+  citecolor=QLBlue,
+  pdftitle={QuantaLayer Research Note \#1: Preparing Solana for the Post-Quantum Era},
+  pdfauthor={Alaeddine Ben Rhouma, Money Factory AI Lab},
+  pdfsubject={Post-Quantum Readiness for Solana},
+  pdfkeywords={post-quantum cryptography, Solana, Ed25519, Falcon, QuantaLayer, QES, QCI},
+  pdfcopyright={Copyright 2026 Money Factory AI LLC},
+  pdflicenseurl={https://quantalayer.app/}
+}
+\usepackage{bookmark}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\DeclareTOCStyleEntry[indent=0pt,numwidth=2.8em,beforeskip=0pt]{tocline}{section}
+\DeclareTOCStyleEntry[indent=2.8em,numwidth=3.4em,beforeskip=0pt]{tocline}{subsection}
+\setcounter{tocdepth}{1}
+
+% ---------- Helpers ----------
+\newcommand{\QES}{\textsc{QES}}
+\newcommand{\QCI}{\textsc{QCI}}
+\newcommand{\ReleaseVersion}{1.0-public}
+\newcommand{\CanonicalURL}{https://quantalayer.app/articles/research-note-1.pdf}
+\newcommand{\ChecksumURL}{https://quantalayer.app/articles/research-note-1.pdf.sha256}
+\newcommand{\ContactEmail}{research@quantalayer.app}
+
+\title{QuantaLayer Research Note \#1: Preparing Solana for the Post-Quantum Era}
+\author{Alaeddine Ben Rhouma, Money Factory AI Lab}
+\date{July 2026}
+
+\begin{document}
+\special{pdf: docinfo << /Author (Alaeddine Ben Rhouma, Money Factory AI Lab) /Keywords (post-quantum cryptography, Solana, Ed25519, Falcon, QuantaLayer, QES, QCI) >>}
+\pagestyle{scrheadings}
+
+\thispagestyle{empty}
+\begin{center}
+\vspace*{-4mm}
+\QuantaLayerLogoHorizontal[0.42\textwidth]\par
+\vspace{8mm}
+{\sffamily\bfseries\color{QLBlue}\fontsize{20}{25}\selectfont QuantaLayer Research Note \#1\par}
+\vspace{4mm}
+{\sffamily\bfseries\color{QLInk}\fontsize{17}{22}\selectfont Preparing Solana for the Post-Quantum Era\par}
+\vspace{2mm}
+{\sffamily\color{QLMuted}\fontsize{12.5}{17}\selectfont State of the Art, Limits, and the Case for a Readiness Layer\par}
+\vspace{6mm}
+{\color{QLTeal}\rule{54mm}{1.2pt}\par}
+\vspace{7mm}
+{\sffamily\bfseries Alaeddine Ben Rhouma\par}
+{\sffamily Founder / Research Lead\par}
+{\sffamily Money Factory AI Lab\par}
+{\sffamily Member, Superteam Balkan\par}
+\vspace{4mm}
+{\sffamily A Money Factory AI Lab initiative\par}
+{\sffamily July 2026\par}
+\vspace{3mm}
+{\sffamily\small Version: \ReleaseVersion\par}
+{\sffamily\small Canonical URL: \href{\CanonicalURL}{quantalayer.app/articles/research-note-1.pdf}\par}
+{\sffamily\small SHA-256: \href{\ChecksumURL}{detached checksum manifest}\par}
+{\sffamily\small Contact: \href{mailto:\ContactEmail}{\ContactEmail}\par}
+\end{center}
+
+\vspace{5mm}
+\begin{statusbox}
+\sffamily\small
+\textbf{Publication status:}
+
+QuantaLayer Research Note. Not a security audit. Not legal advice. Not investment advice.
+\QES{} is a migration criticality score, not a hack probability score.
+QuantaLayer Vault is experimental and not mainnet-ready.
+Superteam Balkan membership is a personal affiliation and does not imply endorsement.
+\end{statusbox}
+
+\clearpage
+
+\section*{Abstract}
+{
+\small
+\noindent
+Solana's current account and transaction model relies heavily on Ed25519 signatures. A cryptographically relevant quantum computer capable of running Shor's algorithm at scale would invalidate the security assumptions behind Ed25519, although no public system demonstrates that capability today. This research note reviews the post-quantum readiness problem for Solana without presenting it as an immediate break. It summarizes the relevant cryptographic background, the NIST post-quantum standards, the non-final status of FIPS 206/FN-DSA, and Solana-specific constraints such as address-as-public-key accounts, Program Derived Addresses, transaction identifiers, fee payers, upgrade authorities, token authorities, stake and vote accounts, validator identities, multisigs and governance keys. It then reviews current ecosystem work by Solana Foundation, Anza, Firedancer, Jump Crypto, Project Eleven, Helius and Blueshift. QuantaLayer is positioned as an application and analytics layer for post-quantum readiness: QuantaLayer Scan measures migration criticality through \QES{} and data confidence through \QCI{}; Authority Exposure prioritizes control keys for protocols and institutions; QuantaLayer Vault remains an experimental opt-in component; and QuantaLayer Notary anchors hashes of hybrid off-chain certificates. QuantaLayer does not replace protocol-level migration.
+\par
+}
+
+\noindent\textbf{Keywords:} post-quantum cryptography; Solana; Ed25519; Falcon; FN-DSA; ML-DSA; WOTS; crypto-agility; migration criticality; QuantaLayer.
+
+\vspace{2mm}
+{\footnotesize\setlength{\parskip}{0pt}\tableofcontents}
+\clearpage
+
+\section{Introduction}
+
+The security of public blockchains depends on the assumption that only the holder of a private key can authorize a valid state transition. On Solana, this assumption is primarily instantiated with Ed25519 signatures. A cryptographically relevant quantum computer (CRQC) capable of running Shor's algorithm at cryptographic scale would break the elliptic-curve discrete logarithm assumptions behind Ed25519 and related schemes \cite{shor1997,rfc8032}.
+
+That is not the same as saying Solana is practically broken today. No public quantum computer demonstrates the ability to recover Ed25519 private keys. The engineering issue is different: post-quantum migration is a long-lead, multi-actor change affecting accounts, programs, wallets, validators, governance processes, custody workflows and compliance surfaces. The relevant question is not when to generate fear, but how to build inventory, measurement, prioritization and experimentation before a rushed migration becomes necessary.
+
+Solana has several characteristics that make this problem different from Bitcoin or Ethereum. For keypair-controlled accounts, the address is the Ed25519 public key itself. Program Derived Addresses (PDAs) are off-curve addresses without private keys, but their safety depends on the programs and authorities that control them. The fee payer, the first signature used as the transaction identifier, versioned transactions, Address Lookup Tables, compute limits and account locking all shape the migration path \cite{solana-docs-accounts,solana-docs-pda,solana-docs-transactions,solana-docs-fees,solana-docs-versioned-transactions,solana-docs-alt}.
+
+The Solana ecosystem is already studying this transition. Solana Foundation has published a quantum-readiness roadmap; Anza and Firedancer have explored Falcon/FN-DSA; Jump Crypto has analyzed migration paths; Project Eleven has reported a Solana testnet effort; and Blueshift/Dean Little published hash-based vault work before QuantaLayer \cite{solana-quantum-readiness,anza-quantum-adversary,jump-quantum-migration-paths,projecteleven-solana-advance,blueshift-winternitz-vault-github}. QuantaLayer is designed to complement this work through readiness measurement, reporting and bounded experimentation, not to replace protocol research.
+
+\begin{takeawaybox}
+\sffamily\small
+\textbf{Key takeaways}
+\begin{enumerate}[leftmargin=*,itemsep=1pt,topsep=3pt]
+\item Solana is not practically broken today.
+\item Post-quantum migration affects more than wallet signatures.
+\item Authorities and governance keys are critical migration targets.
+\item QuantaLayer provides measurement and readiness, not protocol migration.
+\item Vault and Notary remain bounded, opt-in components that require independent review before production claims.
+\end{enumerate}
+\end{takeawaybox}
+
+\section{Methodology}
+
+This note uses a conservative source hierarchy. Primary standards and official technical documentation are treated as authoritative for protocol or standard status. Ecosystem announcements are treated as evidence of intent or research direction, not as proof of production deployment. Press sources are used only to document reported claims, never as benchmark evidence.
+
+\begin{table}[htbp]
+\centering
+\caption{Source hierarchy used in this research note}
+\label{tab:source-hierarchy}
+\small
+\begin{tabularx}{\textwidth}{L{0.22\textwidth}Y Y}
+\toprule
+\textbf{Tier} & \textbf{Examples} & \textbf{Use in the note} \\
+\midrule
+Standards and RFCs & NIST FIPS 203/204/205, RFC 8032, RFC 8785 & Cryptographic definitions and final standard status. \\
+Official protocol documentation & Solana documentation, Anza documentation, Metaplex documentation & Account model, transactions, token and program surfaces. \\
+Primary ecosystem sources & Solana Foundation, Jump Crypto, Helius, Blueshift repositories & Migration paths, proposals, implementation signals. \\
+Research papers and whitepapers & Shor, Grover, Google Quantum AI, Falcon specification & Threat model and cryptographic trade-offs. \\
+Press and secondary reports & CoinDesk, Unchained & Reported context only; not benchmark proof. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Claims are stated with three constraints. First, CRQC risk is conditional: it depends on future hardware and error correction, not on an observed present capability. Second, proposal status is not adoption: a GitHub pull request, a prototype or a testnet is not a mainnet protocol decision. Third, readiness metrics are operational triage tools, not cryptographic proofs.
+
+\section{Cryptographic Background}
+
+\subsection{Quantum algorithms and classical assumptions}
+
+Shor's algorithm threatens public-key schemes based on integer factorization and discrete logarithms, including elliptic-curve signatures \cite{shor1997}. Grover's algorithm gives a quadratic speedup for unstructured search, which affects symmetric security margins and hash preimage costs but does not invalidate hash functions in the same structural way \cite{grover1996}. Hash-based signatures therefore remain an important post-quantum family when parameterized conservatively.
+
+Solana uses Ed25519 signatures for ordinary transaction authorization \cite{rfc8032}. Under a future CRQC, exposed Ed25519 public keys and signatures become migration-relevant artifacts. The distinction is important: visible public-key material is an exposure surface, but exposure is not itself an exploit.
+
+\subsection{NIST standards and Falcon/FN-DSA status}
+
+NIST finalized FIPS 203 (ML-KEM), FIPS 204 (ML-DSA) and FIPS 205 (SLH-DSA) in 2024 \cite{nist-fips203,nist-fips204,nist-fips205}. FIPS 206 / FN-DSA / Falcon is not final at the time of writing. NIST material identifies Falcon/FN-DSA as a standardization track, not as a completed FIPS \cite{nist-pqc-project,nist-fips206-perlner}.
+
+\begin{table}[htbp]
+\centering
+\caption{Post-quantum standards status relevant to this note}
+\label{tab:nist-standards}
+\small
+\begin{tabularx}{\textwidth}{L{0.18\textwidth}L{0.22\textwidth}Y}
+\toprule
+\textbf{Reference} & \textbf{Primitive} & \textbf{Status used in this note} \\
+\midrule
+FIPS 203 & ML-KEM & Final NIST KEM standard. \\
+FIPS 204 & ML-DSA & Final NIST lattice-based signature standard. \\
+FIPS 205 & SLH-DSA & Final NIST stateless hash-based signature standard. \\
+FIPS 206 & FN-DSA / Falcon & Not final; parameters, encodings and implementation guidance may evolve. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Falcon is attractive for Solana because signatures are compact relative to ML-DSA and SLH-DSA. That benefit comes with implementation complexity: Gaussian sampling, constant-time behavior and side-channel resistance are harder to engineer than for simpler APIs. A Solana migration path involving Falcon should therefore be evaluated through audited implementations, reproducible benchmarks and governance review, not by signature size alone \cite{falcon-spec,jump-quantum-migration-paths}.
+
+\begin{table}[htbp]
+\centering
+\caption{Indicative signature and public-key sizes}
+\label{tab:scheme-sizes}
+\small
+\begin{tabularx}{\textwidth}{L{0.22\textwidth}L{0.20\textwidth}L{0.22\textwidth}Y}
+\toprule
+\textbf{Scheme} & \textbf{Public key} & \textbf{Signature} & \textbf{Comment} \\
+\midrule
+Ed25519 & 32 B & 64 B & Current Solana transaction signature scheme. \\
+ML-DSA-65 & 1,952 B & 3,309 B & Final NIST signature option, large for Solana transactions. \\
+SLH-DSA & parameter-dependent & much larger & Stateless hash-based standard; useful for diversity, costly for on-chain use. \\
+Falcon-512 & about 897 B & about 666 B average & Compact, but FIPS 206 is not final. \\
+WOTS/WOTS+ & parameter-dependent & one-time, hash-based & Useful for opt-in vault designs; requires strict key-use discipline. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Solana-Specific Constraints}
+
+\subsection{Accounts, addresses and signatures}
+
+For keypair-controlled accounts, a Solana address is the Ed25519 public key. Helius notes that post-quantum public keys are too large to become 32-byte addresses directly; a plausible migration would derive addresses from a hash of the post-quantum public key and a scheme identifier, with an off-curve or collision-avoidance rule analogous in spirit to PDA derivation \cite{helius-solana-pq}. This would affect wallet UX, transaction formats, account discovery and signing semantics.
+
+The current transaction identifier depends on the first Ed25519 signature. A post-quantum transaction model would more naturally use a hash of the message payload or a redesigned identifier rule, because post-quantum signatures are larger and scheme-dependent \cite{helius-solana-pq,solana-docs-transactions}. Fee payer semantics and compute budget constraints also matter: verification cost is not an abstract benchmark but a runtime resource allocation problem \cite{solana-docs-fees}.
+
+\subsection{Program and authority surfaces}
+
+Solana's risk surface is not limited to user wallets. Upgradeable programs use ProgramData accounts and upgrade authorities through the BPFUpgradeableLoader model \cite{solana-docs-program-deployment}. Token mints may have mint, freeze or close authorities. Metaplex assets have update authorities. Stake accounts have withdraw authorities. Vote accounts and validator identity keys are operationally critical \cite{solana-token-basics,metaplex-token-metadata,metaplex-update-assets,solana-docs-stake-accounts,solana-rpc-getvoteaccounts,anza-vote-account-management}.
+
+\begin{table}[htbp]
+\centering
+\caption{Solana surfaces that affect post-quantum readiness}
+\label{tab:solana-surfaces}
+\small
+\begin{tabularx}{\textwidth}{L{0.25\textwidth}Y Y}
+\toprule
+\textbf{Surface} & \textbf{Examples} & \textbf{Readiness implication} \\
+\midrule
+Account model & System Program accounts, keypair-controlled accounts, PDAs & Addresses, ownership and signer rules are migration-critical. \\
+Transactions & fee payer, first signature as transaction id, compute budget, versioned transactions, Address Lookup Tables & Larger signatures and different identifiers require runtime and wallet changes. \\
+Programs & BPFUpgradeableLoader, ProgramData, upgrade authority & Protocol control can be concentrated in Ed25519 authorities. \\
+Tokens & SPL Token, Token-2022, mint/freeze/close authorities & Asset migration depends on authorities, not only holders. \\
+NFT/cNFT & Metaplex Token Metadata, Bubblegum compressed NFTs & Update authority and indexing quality affect exposure inventory. \\
+Staking and voting & stake withdraw authority, vote authority, validator identity & Validator and institutional operations require special migration planning. \\
+Governance & Squads multisig, Realms governance, treasury authorities & Multi-party control keys are high-priority B2B targets. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{State of the Art in Solana Post-Quantum Readiness}
+
+Solana Foundation describes quantum readiness as a long-term engineering problem and reports convergence by Anza and Firedancer toward Falcon/FN-DSA as a compact candidate for high-throughput signatures \cite{solana-quantum-readiness,anza-quantum-adversary}. Jump Crypto similarly treats Falcon as a leading candidate while noting that different components may evolve independently \cite{jump-quantum-migration-paths}.
+
+SIMD-0461 existed as a proposal for Falcon-512 verification on-chain. It was initially formulated as a precompile and later refactored as a syscall under the title \enquote{SIMD-0461: enabling falcon signature verification as a syscall}. The official pull request \#461 in `solana-foundation/solana-improvement-documents' is closed; it was closed on June 17, 2026. The author indicated that the effort was paused, mentioned a Dean Little Falcon implementation in SBF with reasonable compute cost, and wrote that it was closed for now and could be reopened when there is more demand \cite{simd0461-pr}. It is a meaningful research signal, but it is not active, merged, adopted or a confirmed protocol trajectory.
+
+Google Quantum AI's 2026 whitepaper distinguishes attacks against public keys already exposed at rest from attacks during the spend window. It gives indicative timing comparisons of roughly 400 ms for Solana, 12 seconds for Ethereum and 10 minutes for Bitcoin, and includes a \enquote{Post-Quantum Blockchains} discussion covering Solana Winternitz Vault, Algorand, XRP Ledger, QRL, Mochimo and Abelian \cite{google-quantum-ai-crypto-2026}. The same paper does not demonstrate a currently operational CRQC.
+
+Blueshift and Dean Little deserve explicit priority for Solana hash-based vault work. The Solana Winternitz Vault repository describes WOTS with truncated Keccak-256 and 224-bit preimage resistance, while Blueshift's Winterwallet article discusses a related but not automatically identical WOTS design and parameterization \cite{blueshift-winternitz-vault-github,blueshift-quantum-proofing-solana,blueshift-winternitz-course}. QuantaLayer Vault does not claim to introduce a new primitive.
+
+\begin{table}[htbp]
+\centering
+\caption{Selected ecosystem work and how it is treated}
+\label{tab:ecosystem-state}
+\small
+\begin{tabularx}{\textwidth}{L{0.23\textwidth}L{0.24\textwidth}Y}
+\toprule
+\textbf{Actor} & \textbf{Contribution} & \textbf{Interpretation in this note} \\
+\midrule
+Solana Foundation & Quantum-readiness roadmap & Official ecosystem direction, not final migration deployment. \\
+Anza / Firedancer / Jump & Falcon/FN-DSA research and migration paths & Strong technical signal; production path still depends on standardization, audits and governance. \\
+SIMD-0461 & Falcon verification as a syscall & Closed proposal; research signal only. \\
+Project Eleven & Threat assessment and reported testnet work & Useful context; public material is not a reproducible benchmark protocol. \\
+Helius & Solana-specific migration analysis & Key source for address, transaction and authority implications. \\
+Blueshift / Dean Little & Winternitz Vault and Winterwallet work & Prior Solana hash-based vault work that QuantaLayer must acknowledge. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Current Limits and Open Problems}
+
+Post-quantum readiness for Solana remains constrained by incomplete standardization, runtime costs, governance sequencing, wallet UX and public benchmark gaps. These limits are not blockers to research, but they prevent responsible claims of production readiness.
+
+\begin{table}[htbp]
+\centering
+\caption{Current limits that must remain visible}
+\label{tab:current-limits}
+\small
+\begin{tabularx}{\textwidth}{L{0.28\textwidth}Y Y}
+\toprule
+\textbf{Limit} & \textbf{Why it matters} & \textbf{Publication-safe statement} \\
+\midrule
+FIPS 206 is not final & Falcon parameters and encodings may evolve & Treat Falcon as promising but provisional. \\
+No adopted Falcon syscall & SIMD-0461 is closed & Do not describe Falcon verification as active protocol work. \\
+Transaction and compute limits & PQ signatures are larger and verification can be costly & Benchmark with real Solana runtime constraints. \\
+Persistent authorities & Protocol and treasury keys may control more value than wallets & Prioritize Authority Exposure. \\
+Indexing gaps & DeFi, NFT/cNFT and price data may be incomplete & Couple \QES{} with \QCI{} and with warnings. \\
+Benchmark opacity & Public reports may lack scripts, logs and distributions & Require reproducible protocols before performance claims. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+ANSSI guidance supports inventory, crypto-agility and hybridization for regulated security-product contexts \cite{anssi-pqc-faq,anssi-pqc-page,anssi-pqc-position}. A 2027 product-qualification milestone has been reported in specialized press, but without a primary doctrine located for this note it should not be presented as a direct ANSSI rule for public blockchains or as a commercial argument for QuantaLayer.
+
+\section{QuantaLayer Scan: \QES{} and \QCI{}}
+
+QuantaLayer Scan is a read-only scanner. It never requests private keys, seed phrases or transaction signatures for a public address scan. Its purpose is to estimate migration criticality and data confidence from observable public data.
+
+Let \(a\) be a Solana address, \(O(a)\) the set of observable scoring factors for that scan, \(f_i(a)\in[0,1]\) a normalized factor value, \(w_i\) the nominal factor weight and \(w_i'\) the renormalized weight over the observable set. QuantaLayer defines:
+
+\[
+  \QES(a)=\operatorname{round}\left(100\sum_{i \in O(a)} w_i' f_i(a)\right),
+  \qquad
+  w_i'=\frac{w_i}{\sum_{j\in O(a)} w_j}.
+\]
+
+\QES{} is a migration criticality score, not a probability that an address will be hacked. If a factor is not observable, the remaining weights are renormalized and \QCI{} must decrease.
+
+\begin{table}[htbp]
+\centering
+\caption{\QES{} factors}
+\label{tab:qes-factors}
+\small
+\begin{tabularx}{\textwidth}{L{0.31\textwidth}L{0.16\textwidth}Y}
+\toprule
+\textbf{Factor} & \textbf{Nominal weight} & \textbf{Interpretation} \\
+\midrule
+Observable asset value to migrate & 0.35 & Estimated migration exposure value, not financial VaR. \\
+Staked or locked assets & 0.20 & Operational friction and time to move or redelegate. \\
+Observable concentration & 0.15 & Lack of compartmentalization when visible. \\
+Observable age & 0.10 & First indexed activity, first known signature or first indexer appearance; not guaranteed account creation date. \\
+Significant active token accounts & 0.10 & Migration complexity after dust/spam filtering. \\
+Recent activity & 0.10 & Likelihood that the account can be reached or migrated proactively. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The token-account factor must be resistant to dusting. QuantaLayer Scan should apply a minimum value threshold, ignore or underweight spam tokens, distinguish active token accounts from unsolicited dust, weight meaningful assets more heavily and reduce \QCI{} when pollution prevents reliable interpretation.
+
+For confidence, let \(c_k(a)\in[0,1]\) be a confidence component and \(v_k\) its weight:
+
+\[
+  \QCI(a)=\operatorname{round}\left(100\sum_k v_k c_k(a)\right).
+\]
+
+\begin{table}[htbp]
+\centering
+\caption{\QCI{} dimensions and display rule}
+\label{tab:qci}
+\small
+\begin{tabularx}{\textwidth}{L{0.26\textwidth}L{0.13\textwidth}Y}
+\toprule
+\textbf{Dimension} & \textbf{Weight} & \textbf{Method} \\
+\midrule
+Resolved prices & 0.30 & Share of value covered by reliable prices. \\
+RPC/DAS responses & 0.20 & Complete pagination and valid schemas. \\
+DeFi positions & 0.15 & LP, lending and perps decoded where relevant. \\
+NFT/cNFT & 0.10 & Indexing and valuation coverage. \\
+Stake accounts & 0.10 & Amounts and authorities resolved. \\
+Data freshness & 0.10 & Cache age and TTL. \\
+Account classification & 0.05 & System, PDA, multisig, program or other class. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{\QCI{} controls how \QES{} is displayed}
+\label{tab:qci-display}
+\small
+\begin{tabularx}{0.88\textwidth}{L{0.22\textwidth}Y}
+\toprule
+\textbf{\QCI{}} & \textbf{User display} \\
+\midrule
+\(\geq 80\) & \QES{} displayed normally. \\
+60--79 & \QES{} displayed with warning. \\
+40--59 & \QES{} displayed as a fragile estimate. \\
+\(<40\) & No A/B/C/D/E grade; show insufficient data. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Authority Exposure Module}
+
+Authority Exposure is the most important B2B module because protocol, DAO and institutional risk is often concentrated in control keys rather than ordinary wallet balances. A compromised upgrade authority can change a program. A compromised mint authority can affect token supply. A compromised treasury or governance authority can redirect assets even if individual user wallets are not directly affected.
+
+The module should produce an inventory and migration criticality analysis for authorities. It is not a security audit and does not replace manual review of program logic, governance processes or custody controls.
+
+\begin{table}[htbp]
+\centering
+\caption{Authority Exposure coverage}
+\label{tab:authority-exposure}
+\small
+\begin{tabularx}{\textwidth}{L{0.30\textwidth}Y Y}
+\toprule
+\textbf{Authority type} & \textbf{Examples} & \textbf{Why it matters} \\
+\midrule
+Program control & upgrade authority, ProgramData account, program deployer, BPFUpgradeableLoader & Can modify executable logic or governance-controlled protocol behavior. \\
+Token control & mint authority, freeze authority, close authority, Token-2022 authorities & Can affect supply, transferability or account lifecycle. \\
+Metadata and assets & metadata update authority, Bubblegum/cNFT authorities & Can affect NFT/cNFT integrity and presentation. \\
+Staking and validation & stake withdraw authority, vote authority, validator identity & Operationally critical for validators and institutions. \\
+Governance and treasury & DAO governance keys, Realms governance, Squads multisig owners, protocol treasury authorities & Often controls high-value or high-impact actions. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{QuantaLayer Vault}
+
+\begin{warningbox}
+\sffamily\small
+QuantaLayer Vault is an experimental, non-custodial, opt-in vault. It protects only assets actually deposited into it. It does not protect the Solana account model, validators, consensus, fee payers or external authorities. QuantaLayer Vault must not be used for real funds until public devnet testing, independent audits, capped release rules and recovery documentation are published.
+\end{warningbox}
+
+QuantaLayer recognizes the priority of Dean Little / Blueshift and the Solana Winternitz Vault. QuantaLayer Vault does not claim to introduce a new primitive; it proposes a benchmarked, audit-gated and UX-integrated experimental path linked to \QES{}/\QCI{}.
+
+\begin{table}[htbp]
+\centering
+\caption{Distinguishing Solana Winternitz Vault, Winterwallet and QuantaLayer Vault}
+\label{tab:vault-parameters}
+\small
+\begin{tabularx}{\textwidth}{L{0.30\textwidth}L{0.20\textwidth}Y}
+\toprule
+\textbf{Element} & \textbf{Source} & \textbf{Parameters} \\
+\midrule
+Solana Winternitz Vault GitHub & Blueshift repository & WOTS plus truncated Keccak-256 with 224-bit preimage-resistance target. \\
+Winterwallet & Blueshift article & WOTS, hash and truncation parameters as documented by Blueshift; not assumed identical to the repository. \\
+QuantaLayer Vault & QuantaLayer & Not fixed; benchmark and audit are mandatory before any release claims. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A refund address can reintroduce residual Ed25519 exposure. QuantaLayer Vault must display the \QES{}/\QCI{} of the refund address, recommend refunding to a new vault or post-quantum-compatible strategy where appropriate, and test the scenario where a refund address is highly critical.
+
+No mainnet QuantaLayer Vault should exist without public devnet testing, Bankrun and LiteSVM coverage, instruction fuzzing, property-based tests, anti-replay and malleability tests, weak-RNG simulations, benchmark comparison with a precise Blueshift commit, two independent audits, a bug bounty, caps, recovery documentation, incident monitoring, legal review and a clear upgrade-authority strategy.
+
+\section{QuantaLayer Notary}
+
+QuantaLayer Notary is a hybrid document-integrity and anchoring design. ML-DSA-65 is used off-chain in the certificate. The on-chain transaction is not the certificate itself; it is an anchor to a certificate hash.
+
+\begin{table}[htbp]
+\centering
+\caption{QuantaLayer Notary processing flow}
+\label{tab:notary-flow}
+\small
+\begin{tabularx}{\textwidth}{L{0.22\textwidth}Y Y}
+\toprule
+\textbf{Step} & \textbf{Artifact} & \textbf{Location / role} \\
+\midrule
+Document & final file & issuer side \\
+Canonicalization & deterministic representation & off-chain \\
+Document hash & SHA-256 & signed payload \\
+Signatures & Ed25519 + ML-DSA-65 & off-chain certificate \\
+Certificate hash & SHA-256 & on-chain anchor \\
+Solana anchor & transaction / slot & public proof \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\Needspace{14\baselineskip}
+The signed message must be domain-separated, versioned and canonical:
+
+\begin{lstlisting}
+signature_message =
+  domain_separator ||
+  schema_version ||
+  canonical(
+    document_hash,
+    issuer_id,
+    issuer_key_id,
+    issued_at,
+    policy_id,
+    revocation_registry,
+    anchor_policy,
+    chain_id,
+    cluster_id,
+    canonicalization_profile
+  )
+\end{lstlisting}
+
+The public certificate must not contain personal data about the subject of the document. Issuer metadata must be minimized; if it identifies a natural person, it must be treated as personal data. JSON canonicalization should use RFC 8785/JCS or an internal versioned `json-c14n-v1' profile \cite{rfc8785}. For PDF, the hash should cover the final bytes, metadata must be frozen before signature, no implicit normalization is applied and any modification changes the hash.
+
+QuantaLayer Notary is neither a qualified electronic signature nor a qualified timestamping service under eIDAS. Integrity evidence is not evidence that the content is true. Relative proof of existence is not a qualified timestamp.
+
+\begin{table}[htbp]
+\centering
+\caption{Minimum key registry fields for QuantaLayer Notary}
+\label{tab:key-registry}
+\small
+\begin{tabularx}{\textwidth}{L{0.28\textwidth}Y}
+\toprule
+\textbf{Field} & \textbf{Purpose} \\
+\midrule
+issuer\_id & Stable issuer identity or registry identifier. \\
+issuer\_key\_id & Versioned key identifier used in signed messages. \\
+alg & Algorithm identifier, for example ML-DSA-65. \\
+public\_key & Complete public key, not only a fingerprint. \\
+fingerprint & Stable digest used by certificates and offline verifiers. \\
+valid\_from / valid\_until & Validity window. \\
+status & active, revoked or expired. \\
+rotation\_history & Previous and successor key relationships. \\
+registry\_anchor & Hash or transaction anchoring the registry state. \\
+compromise\_policy & Revocation and disclosure procedure after compromise. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Abuse Risks and Responsible Design}
+
+Readiness tools can be misused. A public score can become a phishing pretext, a targeting aid or a false safety badge. QuantaLayer must therefore design for conservative display, rate limits, anti-scraping controls and claim discipline.
+
+\begin{table}[htbp]
+\centering
+\caption{Abuse risks and mitigations}
+\label{tab:abuse-risks}
+\small
+\begin{tabularx}{\textwidth}{L{0.27\textwidth}Y Y}
+\toprule
+\textbf{Risk} & \textbf{Failure mode} & \textbf{Mitigation} \\
+\midrule
+Targeting lists & Scanning third-party addresses to rank valuable accounts & Rate limits, aggregate-only public reporting, no nominative leaderboard. \\
+Phishing & Fake reports or urgent migration prompts & Clear read-only messaging; never request seed phrases; signed official reports. \\
+False precision & Treating \QES{} as a hack probability & Always display \QCI{} and explanations; no grade below \QCI{} 40. \\
+Vault overclaim & Users treat experimental vaults as audited custody & Mainnet prohibition until audits, caps and recovery documentation. \\
+Notary overclaim & Integrity proof mistaken for legal qualification & Explicit eIDAS and truth-of-content limitations. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Roadmap and Open-Source Strategy}
+
+\begin{table}[htbp]
+\centering
+\caption{QuantaLayer roadmap}
+\label{tab:roadmap}
+\small
+\begin{tabularx}{\textwidth}{L{0.18\textwidth}Y Y}
+\toprule
+\textbf{Horizon} & \textbf{Deliverables} & \textbf{Conditions} \\
+\midrule
+2026 Q3 & QuantaLayer Scan, \QES{}/\QCI{}, documentation, initial aggregate reports & Versioned constants, cited sources, limitations displayed. \\
+2026 Q4--2027 H1 & Authority Exposure, Vault devnet, benchmark protocol & Bankrun, LiteSVM, fuzzing, Blueshift comparison, legal review. \\
+2027+ & Notary B2B, periodic reports, capped Vault only if conditions are met & Independent audits, bug bounty, recovery documentation, monitoring. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+QuantaLayer will publish at minimum the \QES{}/\QCI{} specification, versioned weights, invariants, synthetic test sets and reproducible examples. Publication of the full indexing, scoring and valuation pipeline will depend on open-source strategy, anti-abuse design, security considerations and intellectual property protection.
+
+\section{Discussion}
+
+Post-quantum readiness is a sequencing problem. Protocol teams must decide signature schemes, runtime rules and migration governance. Wallets must implement new signing flows. Institutions must inventory authorities and custody policies. Users must understand which assets and accounts require action. No single application layer can solve the protocol-level migration.
+
+QuantaLayer's defensible contribution is therefore narrower and more useful: make exposure visible, make confidence explicit, prioritize authorities and publish reproducible benchmarks. This framing also limits the product's claims. QuantaLayer can help decide where migration work should start. It cannot certify that an account is safe, predict Q-Day, replace audits or substitute for a future Solana protocol migration.
+
+\section{Conclusion}
+
+Solana's post-quantum transition is not a one-line cryptographic upgrade. It touches account semantics, address formats, transaction identifiers, fee payers, compute budgets, upgrade authorities, token authorities, validator operations and governance controls. Existing ecosystem work has already identified serious paths: Falcon/FN-DSA research by Solana client teams, analysis by Jump Crypto and Helius, Project Eleven's reported testnet work, and Blueshift's prior Winternitz-based vault designs.
+
+QuantaLayer should be evaluated as a readiness layer within that broader ecosystem. QuantaLayer Scan measures migration criticality with \QES{} and data confidence with \QCI{}. Authority Exposure extends the model to protocol and institutional control keys. QuantaLayer Vault remains experimental and opt-in. QuantaLayer Notary anchors hashes of hybrid off-chain certificates. The value of the project depends on measurement discipline, careful limits, transparent benchmarks and refusal to overclaim.
+
+\nocite{*}
+\printbibliography[heading=bibintoc,title={References}]
+
+\appendix
+
+\section{Claims Allowed and Prohibited}
+\label{appendix:claims}
+
+\begin{table}[htbp]
+\centering
+\caption{Publication claim matrix}
+\label{tab:claim-matrix}
+\small
+\begin{tabularx}{\textwidth}{L{0.20\textwidth}Y}
+\toprule
+\textbf{Allowed} & \textbf{Wording} \\
+\midrule
+Measurement & QuantaLayer measures migration criticality. \\
+Prioritization & QuantaLayer helps prioritize post-quantum readiness. \\
+Vault status & QuantaLayer Vault is experimental. \\
+Authority Exposure & Authority Exposure is an inventory and criticality module. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Prohibited publication claims}
+\label{tab:prohibited-claims}
+\small
+\begin{tabularx}{\textwidth}{L{0.32\textwidth}Y}
+\toprule
+\textbf{Do not claim} & \textbf{Reason} \\
+\midrule
+Protocol-protection claim for QuantaLayer. & Protocol-level security is outside the application layer. \\
+Quantum-safe outcome claim for Solana through QuantaLayer. & This would overstate scope and timing. \\
+Hack-prediction claim for \QES{}. & \QES{} is a migration criticality score. \\
+Accuracy-guarantee claim for \QCI{}. & \QCI{} measures data completeness and confidence. \\
+Production-safety claim for Vault before audits. & Vault remains experimental until independent audits are published and release caps are enforced. \\
+Qualified-trust-service claim for Notary under eIDAS. & Notary is an integrity and anchoring design, not a qualified trust service. \\
+Final-standard claim for FIPS 206. & FIPS 206 is not final at publication time. \\
+Protocol-adoption claim for SIMD-0461. & The pull request is closed and not adopted. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{QuantaLayer Vault Benchmark Protocol}
+\label{appendix:vault-benchmark}
+
+\subsection{Environment to publish}
+
+Every benchmark report must publish: QuantaLayer Vault commit, Solana Winternitz Vault commit, Anchor version, Solana toolchain, Bankrun version, LiteSVM version, hardware, hash function, WOTS/WOTS+ parameters, truncation, instruction size, transaction size, compute units, fees, localnet/devnet cluster, feature flags and upgrade-authority configuration.
+
+\begin{table}[htbp]
+\centering
+\caption{Benchmark metrics}
+\label{tab:benchmark-metrics}
+\small
+\begin{tabularx}{\textwidth}{L{0.32\textwidth}Y}
+\toprule
+\textbf{Metric} & \textbf{Required reporting} \\
+\midrule
+Instruction and transaction size & bytes, including failure cases for transaction-too-large errors. \\
+Compute units and fees & CU distribution and lamports by instruction. \\
+Latency & p50, p95 and p99; no average alone. \\
+Reliability & localnet and devnet success rates. \\
+State size and lifecycle & initialized, rotated, interrupted, closed and partially initialized states. \\
+Comparison & Same scenario against a precise Blueshift repository commit. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Required test scenarios}
+
+\begin{itemize}
+\item transaction too large;
+\item compute exceeded;
+\item anti-replay;
+\item malleability;
+\item reused signature;
+\item wrong vault;
+\item wrong message;
+\item stale slot or nonce;
+\item weak RNG simulation;
+\item interrupted rotation;
+\item double close;
+\item partially initialized state;
+\item upgrade authority;
+\item refund address vulnerable;
+\item refund to new vault.
+\end{itemize}
+
+Benchmark publication requires distributions, scripts, logs, CSV/JSON raw data and reproduction instructions.
+
+\section{QuantaLayer Notary Certificate Specification}
+\label{appendix:notary-spec}
+
+\subsection{Minimal certificate}
+
+The following JSON is a minimal illustrative certificate schema. Production schemas must be versioned and validated against a formal JSON schema.
+
+\begin{lstlisting}[language=json]
+{
+  "schema": "quantalayer-notary-v0.1",
+  "domain_separator": "quantalayer-notary",
+  "document": {
+    "canonicalization": "pdf-bytes-v1",
+    "hash_alg": "SHA-256",
+    "hash": "base64url..."
+  },
+  "issuer": {
+    "issuer_id": "did-or-domain-or-registry-id",
+    "issuer_key_id": "key-2026-01",
+    "policy_id": "quantalayer-policy-v0.1"
+  },
+  "issued_at": "2026-07-05T12:00:00Z",
+  "revocation": {
+    "registry": "https-or-solana-registry",
+    "status": "active"
+  },
+  "anchor_policy": {
+    "chain_id": "solana",
+    "cluster_id": "mainnet-beta",
+    "min_confirmations": 32
+  },
+  "classical_signature": {
+    "alg": "Ed25519",
+    "public_key": "base58...",
+    "signature": "base64url..."
+  },
+  "post_quantum_signature": {
+    "alg": "ML-DSA-65",
+    "public_key_fingerprint": "base64url...",
+    "signature": "base64url..."
+  },
+  "anchor": {
+    "transaction": "signature...",
+    "slot": 123456789,
+    "certificate_hash": "base64url..."
+  }
+}
+\end{lstlisting}
+
+\subsection{Registry requirements}
+
+The key registry must include the complete ML-DSA public key, fingerprint, validity period, active/revoked/expired status, rotation history, registry anchor, offline verification instructions and compromise policy.
+
+\section{QuantaLayer Scan Output Examples}
+\label{appendix:scan-output}
+
+The following examples illustrate display behavior only; they are not tied to real Solana addresses.
+
+\begin{lstlisting}[language=json,caption={Example scan output when confidence permits grade display}]
+{
+  "address": "Example1111111111111111111111111111111111",
+  "qes": 56,
+  "qci": 78,
+  "grade": "C",
+  "grade_displayed": true,
+  "estimated_migration_exposure_value_usd": 50000,
+  "warnings": [
+    "Concentration unavailable in single-address scan",
+    "DeFi positions partially decoded"
+  ],
+  "scanned_at": "2026-07-05T12:00:00Z",
+  "qes_version": "1.1.0"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json,caption={Example scan output when confidence is insufficient}]
+{
+  "address": "Example2222222222222222222222222222222222",
+  "qes": null,
+  "qci": 34,
+  "grade": null,
+  "grade_displayed": false,
+  "status": "insufficient_data",
+  "warnings": [
+    "RPC/DAS pagination incomplete",
+    "Token account pollution prevents reliable classification"
+  ],
+  "scanned_at": "2026-07-05T12:00:00Z",
+  "qes_version": "1.1.0"
+}
+\end{lstlisting}
+
+\section{Known Limitations}
+\label{appendix:known-limitations}
+
+\begin{enumerate}
+\item This note does not prove the existence of an operational CRQC.
+\item It does not propose a final Solana protocol migration.
+\item It does not certify Falcon/FN-DSA, FIPS 206, QuantaLayer Vault or QuantaLayer Notary.
+\item It does not treat Project Eleven public claims as reproducible performance evidence.
+\item It does not assume that Winterwallet and the Solana Winternitz Vault repository use identical parameters.
+\item It does not treat a \QES{} grade as valid when \QCI{} is below 40.
+\item It does not replace protocol audits, custody reviews or legal analysis.
+\end{enumerate}
+
+\section{Release Integrity Protocol}
+\label{appendix:release-integrity}
+
+The public release is produced from the LaTeX source and bibliography by the repository build script. The script compiles the PDF, cleans auxiliary files, generates a detached SHA-256 checksum manifest, copies the PDF and checksum into the public article directory, and creates a linearized PDF when `qpdf' is available.
+
+\begin{table}[htbp]
+\centering
+\caption{Publication release artifacts}
+\label{tab:release-artifacts}
+\small
+\begin{tabularx}{\textwidth}{L{0.30\textwidth}Y}
+\toprule
+\textbf{Artifact} & \textbf{Release role} \\
+\midrule
+Canonical PDF & Public document linked from the title page. \\
+Detached `.pdf.sha256' file & Verifies the final PDF without embedding a self-referential hash inside the document. \\
+Compile report & Records build command, PDF metadata, embedded fonts, checksum verification, `qpdf' validation and rendered-page inspection. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\end{document}

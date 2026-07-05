@@ -1,4 +1,4 @@
 export const SOLANA_PACKAGE_STATUS = {
   implemented: false,
-  packageName: "@qshield/solana",
+  packageName: "@quantalayer/solana",
 } as const;

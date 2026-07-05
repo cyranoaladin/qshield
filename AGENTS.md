@@ -1,22 +1,23 @@
-# AGENTS.md — Q-Shield
+# AGENTS.md — QuantaLayer
 
 > Instructions for AI coding agents (Codex CLI) working in this repository.
-> Read this file entirely before writing any code. Read `SKILLS.md` for domain knowledge and `TASKS.md` for the current backlog. The product source of truth is `docs/cahier_des_charges_qshield.md`.
+> Read this file entirely before writing any code. Read `SKILLS.md` for domain knowledge and `TASKS.md` for the current backlog. The product source of truth is `docs/cahier_des_charges_quantalayer.md`.
 
 ## 1. Project overview
 
-Q-Shield is a post-quantum security suite on Solana, built in 3 phases:
+QuantaLayer is a post-quantum readiness suite for Solana, built in progressive phases:
 
-- **P1 — Q-Scan**: a read-only web scanner that computes a "Quantum Exposure Score" (QES 0–100) for any Solana address. No custody, no private keys, ever.
-- **P2 — Q-Vault**: a non-custodial vault program (Anchor/Rust) requiring Winternitz OTS (WOTS+) hash-based signatures to withdraw. Client-side key generation only.
-- **P3 — Q-Notary**: dual-signature (Ed25519 + ML-DSA) document anchoring. B2B.
+- **P1 — QuantaLayer Scan**: a read-only web scanner that computes QES/QCI for Solana migration readiness. No custody, no private keys, ever.
+- **P2 — Authority Exposure**: an inventory and criticality module for upgrade, mint, freeze, stake, vote, validator, multisig, DAO and treasury authorities.
+- **P3 — QuantaLayer Vault**: an experimental non-custodial vault program candidate using hash-based signatures. Devnet only until benchmarks, audits and legal review.
+- **P4 — QuantaLayer Notary**: hybrid Ed25519 + ML-DSA document anchoring. B2B.
 
-Current focus: **Phase 0 + Phase 1 (Q-Scan MVP)**. Do not implement P2/P3 code unless a task explicitly says so.
+Current focus: **Phase 0 + Phase 1 (QuantaLayer Scan MVP)**. Do not implement Authority Exposure, Vault or Notary code unless a task explicitly says so.
 
 ## 2. Repository layout (monorepo, pnpm workspaces)
 
 ```
-qshield/
+quantalayer/
 ├── apps/
 │   ├── web/          # Next.js 15 (App Router, TypeScript, Tailwind, shadcn/ui)
 │   └── api/          # Fastify (Node 22, TypeScript) — REST API
@@ -25,7 +26,7 @@ qshield/
 │   ├── solana/       # Data-fetch layer: Helius RPC/DAS, Jupiter prices (all I/O here)
 │   └── shared/       # Zod schemas, types, constants shared across apps
 ├── programs/
-│   └── qvault/       # Anchor program (P2 — placeholder only for now)
+│   └── quantalayer-vault/ # Anchor program (future Vault — placeholder only for now)
 ├── docs/             # Specs, ADRs, cahier des charges
 ├── AGENTS.md         # This file
 ├── SKILLS.md         # Domain knowledge for agents
@@ -44,7 +45,7 @@ pnpm typecheck               # tsc --noEmit on all packages (must pass)
 pnpm test                    # vitest, all packages (must pass)
 pnpm test:coverage           # coverage report — scoring package must stay ≥ 90%
 pnpm build                   # build all apps
-pnpm --filter @qshield/scoring test   # target one workspace
+pnpm --filter @quantalayer/scoring test   # target one workspace
 ```
 
 If a command is missing because the workspace is not yet scaffolded, scaffolding it correctly IS part of the task.
@@ -78,11 +79,11 @@ A task is done only when ALL of the following are true:
 - Never log full request bodies; log address + score only. No PII in logs.
 - Dependencies: prefer well-known libs (`@noble/hashes`, `zod`, `@solana/web3.js`). Adding any new dependency requires a one-line justification in the PR description. Never add a crypto primitive implemented by an unknown author.
 - No custom cryptography. Ever. NIST-standardized primitives via audited libraries only.
-- Any code touching `programs/qvault` must be flagged `⚠ NEEDS HUMAN REVIEW` in the report — no autonomous merges on the Anchor program.
+- Any code touching `programs/quantalayer-vault` must be flagged `⚠ NEEDS HUMAN REVIEW` in the report — no autonomous merges on the Anchor program.
 
 ## 7. What NOT to do
 
-- Do not implement the token ($QDAY or otherwise). Out of scope by decision (see cahier des charges §9.4).
+- Do not implement a token. Out of scope by decision (see cahier des charges §9).
 - Do not add analytics/tracking beyond Plausible.
 - Do not invent QES weights or thresholds — they are specified in `SKILLS.md §3` and versioned. Changing them requires a new `QES_VERSION` and a doc update.
 - Do not fabricate fixture data that looks like real whale wallets; use clearly synthetic addresses in tests.

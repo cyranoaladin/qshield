@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { QShieldError } from "./errors.js";
+import { QuantaLayerError } from "./errors.js";
 
 export const SERVER_ENV_KEYS = [
   "NODE_ENV",
@@ -99,13 +99,13 @@ type EnvValidationIssue = {
   readonly variable: EnvKey | "unknown";
 };
 
-export class EnvValidationError extends QShieldError {
+export class EnvValidationError extends QuantaLayerError {
   readonly issues: readonly EnvValidationIssue[];
 
   constructor(issues: readonly EnvValidationIssue[]) {
     const detail = issues.map((issue) => `${issue.variable}: ${issue.message}`).join("; ");
 
-    super(`Invalid Q-Shield environment: ${detail}`, {
+    super(`Invalid QuantaLayer environment: ${detail}`, {
       code: "ENV_VALIDATION_ERROR",
       detail,
       status: 500,

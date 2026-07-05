@@ -1,6 +1,6 @@
 # CI/CD
 
-Q-Shield uses GitHub Actions in `.github/workflows/ci.yml`.
+QuantaLayer uses GitHub Actions in `.github/workflows/ci.yml`.
 
 ## Pipeline
 
@@ -19,8 +19,8 @@ workflow/ref.
 ## Coverage Gate
 
 The coverage gate is enforced locally and in CI by `packages/scoring/vitest.config.ts`, not by
-workflow-only logic. `@qshield/scoring` requires at least 90% for lines, statements, functions,
-and branches whenever `pnpm --filter @qshield/scoring test:coverage` or root
+workflow-only logic. `@quantalayer/scoring` requires at least 90% for lines, statements, functions,
+and branches whenever `pnpm --filter @quantalayer/scoring test:coverage` or root
 `pnpm test:coverage` runs.
 
 ## Audit

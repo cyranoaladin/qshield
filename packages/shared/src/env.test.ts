@@ -16,7 +16,7 @@ import {
 const baseServerEnv = {
   API_CORS_ORIGIN: "http://localhost:3000",
   API_PORT: "3001",
-  DATABASE_URL: "postgresql://qshield:qshield@localhost:5432/qshield",
+  DATABASE_URL: "postgresql://quantalayer:quantalayer@localhost:5432/quantalayer",
   HELIUS_API_KEY: "test-helius-key",
   HELIUS_RPC_URL: "https://mainnet.helius-rpc.com",
   JUPITER_PRICE_URL: "https://api.jup.ag/price/v2",
@@ -101,7 +101,7 @@ describe("parseServerEnv", () => {
     expect(env).toMatchObject({
       apiCorsOrigin: "http://localhost:3000",
       apiPort: 3001,
-      databaseUrl: "postgresql://qshield:qshield@localhost:5432/qshield",
+      databaseUrl: "postgresql://quantalayer:quantalayer@localhost:5432/quantalayer",
       heliusApiKey: "test-helius-key",
       logLevel: "info",
       nodeEnv: "development",

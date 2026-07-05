@@ -1,5 +1,5 @@
 {
-  "name": "@qshield/api",
+  "name": "@quantalayer/api",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@qshield/shared": "workspace:*",
+    "@quantalayer/shared": "workspace:*",
     "dotenv": "17.2.3",
     "fastify": "5.9.0"
   },

@@ -13,7 +13,7 @@ describe("buildServer", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
-      service: "qshield-api",
+      service: "quantalayer-api",
       status: "ok",
     });
 

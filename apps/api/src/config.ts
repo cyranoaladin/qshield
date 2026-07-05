@@ -1,4 +1,4 @@
-import { type ParseEnvOptions, type ServerEnv, parseServerEnv } from "@qshield/shared";
+import { type ParseEnvOptions, type ServerEnv, parseServerEnv } from "@quantalayer/shared";
 
 export type ApiConfig = {
   readonly corsOrigin: string;

@@ -1,5 +1,5 @@
 {
-  "name": "qshield",
+  "name": "quantalayer",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "pnpm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "pnpm -r --parallel --filter @qshield/web --filter @qshield/api dev",
+    "dev": "pnpm -r --parallel --filter @quantalayer/web --filter @quantalayer/api dev",
     "lint": "prettier --check . && eslint .",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",

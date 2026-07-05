@@ -6,7 +6,7 @@ describe("scoring package scaffold", () => {
   it("is explicitly scaffolded without implementing QES before LOT-04", () => {
     expect(SCORING_PACKAGE_STATUS).toEqual({
       implemented: false,
-      packageName: "@qshield/scoring",
+      packageName: "@quantalayer/scoring",
     });
   });
 });

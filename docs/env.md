@@ -1,6 +1,6 @@
 # Environment Validation
 
-Q-Shield validates runtime configuration through `packages/shared/src/env.ts`.
+QuantaLayer validates runtime configuration through `packages/shared/src/env.ts`.
 
 The module exposes two scoped parsers:
 

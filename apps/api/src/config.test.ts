@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { EnvValidationError, type RawServerEnv } from "@qshield/shared";
+import { EnvValidationError, type RawServerEnv } from "@quantalayer/shared";
 
 import { readApiConfig } from "./config.js";
 
 const validEnv = {
   API_CORS_ORIGIN: "http://localhost:3000",
   API_PORT: "3001",
-  DATABASE_URL: "postgresql://qshield:qshield@localhost:5432/qshield",
+  DATABASE_URL: "postgresql://quantalayer:quantalayer@localhost:5432/quantalayer",
   HELIUS_API_KEY: "test-helius-key",
   HELIUS_RPC_URL: "https://mainnet.helius-rpc.com",
   JUPITER_PRICE_URL: "https://api.jup.ag/price/v2",

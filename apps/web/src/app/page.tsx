@@ -1,7 +1,6 @@
-import { ShieldCheck } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { getMessages } from "@/i18n/messages";
+import Image from "next/image";
 
 export default function HomePage() {
   const messages = getMessages("fr");
@@ -9,8 +8,16 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-8 px-6 py-16">
-        <div className="flex items-center gap-3 text-sm font-medium text-primary">
-          <ShieldCheck aria-hidden="true" className="h-5 w-5" />
+        <div className="flex items-center gap-4">
+          <Image
+            alt={messages.home.logoAlt}
+            className="h-12 w-auto"
+            height={80}
+            src="/images/logo_nom.png"
+            width={240}
+          />
+        </div>
+        <div className="text-sm font-medium text-primary">
           <span>{messages.home.eyebrow}</span>
         </div>
         <div className="max-w-3xl space-y-5">
@@ -24,7 +31,9 @@ export default function HomePage() {
             <a href="#scan">{messages.home.primaryAction}</a>
           </Button>
           <Button asChild variant="secondary">
-            <a href="#learn">{messages.home.secondaryAction}</a>
+            <a href="/articles/article_quantalayer_post_quantum_solana_research_note_1.pdf">
+              {messages.home.secondaryAction}
+            </a>
           </Button>
         </div>
       </section>

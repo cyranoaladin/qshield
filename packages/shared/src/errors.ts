@@ -12,27 +12,27 @@ export type ProblemDetails = {
   readonly type: string;
 };
 
-type QShieldErrorOptions = {
+type QuantaLayerErrorOptions = {
   readonly code: ErrorCode;
   readonly detail?: string | undefined;
   readonly status: number;
 };
 
-export class QShieldError extends Error {
+export class QuantaLayerError extends Error {
   readonly code: ErrorCode;
   readonly detail: string | undefined;
   readonly status: number;
 
-  constructor(message: string, options: QShieldErrorOptions) {
+  constructor(message: string, options: QuantaLayerErrorOptions) {
     super(message);
-    this.name = "QShieldError";
+    this.name = "QuantaLayerError";
     this.code = options.code;
     this.detail = options.detail;
     this.status = options.status;
   }
 }
 
-export class ValidationError extends QShieldError {
+export class ValidationError extends QuantaLayerError {
   constructor(message: string, options: { readonly detail?: string | undefined } = {}) {
     super(message, {
       code: "VALIDATION_ERROR",
@@ -43,7 +43,7 @@ export class ValidationError extends QShieldError {
   }
 }
 
-export class UpstreamDataError extends QShieldError {
+export class UpstreamDataError extends QuantaLayerError {
   constructor(message: string, options: { readonly detail?: string | undefined } = {}) {
     super(message, {
       code: "UPSTREAM_DATA_ERROR",
@@ -55,7 +55,7 @@ export class UpstreamDataError extends QShieldError {
 }
 
 export function toProblemJson(error: unknown, instance?: string): ProblemDetails {
-  if (error instanceof QShieldError) {
+  if (error instanceof QuantaLayerError) {
     return withOptionalFields(
       {
         code: error.code,

@@ -1,6 +1,6 @@
 import { config as loadDotenv } from "dotenv";
 
-import { formatEnvWarning } from "@qshield/shared";
+import { formatEnvWarning } from "@quantalayer/shared";
 
 import { readApiConfig } from "./config.js";
 import { buildServer } from "./server.js";
