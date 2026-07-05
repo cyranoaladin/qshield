@@ -5,12 +5,12 @@
 
 ## Phase 0 — Fondations
 
-### [ ] LOT-01 — Monorepo scaffold
+### [x] LOT-01 — Monorepo scaffold
 
 Scaffold pnpm workspaces per AGENTS.md §2: `apps/web` (Next.js 15 + TS + Tailwind + shadcn/ui), `apps/api` (Fastify + TS ESM), `packages/{scoring,solana,shared}`, `programs/qvault` (empty placeholder + README). Root scripts: `dev`, `lint`, `typecheck`, `test`, `build`. ESLint flat config + Prettier shared.
 **Acceptance:** `pnpm install && pnpm lint && pnpm typecheck && pnpm build` pass on a clean clone; `pnpm dev` serves web on :3000 and api `/healthz` on :3001.
 
-### [ ] LOT-02 — Shared foundations
+### [x] LOT-02 — Shared foundations
 
 `packages/shared`: Zod env validation (`env.ts`, fail-closed boot), typed error classes, RFC 7807 serializer, constants. `.env.example` kept in sync.
 **Acceptance:** api crashes with explicit message on missing env; unit tests for env parsing and error serialization.

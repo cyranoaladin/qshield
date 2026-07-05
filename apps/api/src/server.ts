@@ -1,6 +1,6 @@
 import Fastify, { type FastifyInstance } from "fastify";
 
-const API_SERVICE_NAME = "qshield-api";
+import { API_SERVICE_NAME } from "@qshield/shared";
 
 export function buildServer(): FastifyInstance {
   const server = Fastify({
