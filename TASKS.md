@@ -20,15 +20,10 @@ Debt paid in LOT-03 Part A: topological build order, warn-by-default `parseEnv`,
 Done — commits `3fdf029` (Part A) + `9705294` (Part B) on `lot/03-ci`, merged into main. Part A: remove nested shared builds, `pnpm -r` topological for build/typecheck/test/coverage, default console warnings in `parseEnv` (tests inject silent handler), split `parseServerEnv` / `parseWebEnv` (API must boot without any `NEXT_PUBLIC_*`). Part B: coverage thresholds (90) enforced in `@qshield/scoring` vitest config, GitHub Actions workflow (PR + push main, frozen lockfile, pnpm cache, ordered gates, non-blocking audit job), `docs/ci.md` with branch-protection recommendations.
 **Acceptance:** clean-state double `pnpm build` with no race; `env -i` boot proof without NEXT_PUBLIC_*; local simulation of exact CI sequence pasted in report.
 
-### [ ] LOT-3.5 — Normative documentation pack
+### [x] LOT-3.5 — Normative documentation pack
 
-Create the editorial/security backbone that later LOTs are tested against:
-
-- `docs/claims_matrix.md`: allowed claims, forbidden claims, recommended phrasings, banned phrasings (FR + EN). Must include the banned-words machine list in a fenced block parseable by tests: at minimum `quantum-proof`, `unhackable`, `100% secure`, `garanti inviolable`, `preuve quantique`. Every allowed sensitive claim carries a source (NIST FIPS 203/204/205, ANSSI, peer-reviewed) or `TODO: source required`.
-- `docs/threat_model_qscan.md`: protected assets, threats, explicit NON-threats, assumptions, **abuse cases** (e.g., scanning third-party wallets for targeting, scraping the API to build whale lists, using scores for phishing pretexts) and mitigations for each.
-- `docs/glossary_pqc.md`: Shor, Grover, Ed25519, ML-KEM, ML-DSA, SLH-DSA, WOTS+, PDA, crypto-agility, Q-Day, harvest-now-decrypt-later. Vulgarized FR definitions, reusable as marketing/pedagogy content.
-- `docs/whitepaper_v0.1.md`: executive summary, problem, PQC context, Solana specificity (address = pubkey), Q-Scan, Q-Vault, Q-Notary, architecture, **explicit limitations section**, roadmap, risks. Factual tone, zero hype, every claim consistent with claims_matrix.
-  **Acceptance:** markdown lint clean; no banned phrasing anywhere in `docs/` except inside the claims_matrix "banned" section itself; whitepaper limitations section present and non-empty.
+Done — commits `f11e703` (normative docs + banned-words guard test) and `7859e8a` (postcss audit advisory override) on `lot/3.5-normative-docs`. Adds `docs/claims_matrix.md`, `docs/threat_model_qscan.md`, `docs/glossary_pqc.md`, `docs/whitepaper_v0.1.md`, and `packages/shared/src/docs-claims.test.ts`.
+**Acceptance:** guard test red/green proof completed; markdown lint clean; full local gate passed; `pnpm audit --prod` reports zero known vulnerabilities.
 
 ## Phase 1 — Q-Scan MVP
 
