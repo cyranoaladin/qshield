@@ -15,7 +15,7 @@ Scaffold pnpm workspaces per AGENTS.md §2: `apps/web` (Next.js 15 + TS + Tailwi
 `packages/shared`: Zod env validation (`env.ts`, fail-closed boot), typed error classes, RFC 7807 serializer, constants. `.env.example` kept in sync.
 **Acceptance:** api crashes with explicit message on missing env; unit tests for env parsing and error serialization.
 
-### [ ] LOT-03 — CI/CD
+### [x] LOT-03 — CI/CD
 
 GitHub Actions: install → lint → typecheck → test (with coverage gate ≥ 90% on `@qshield/scoring` once it exists) → build. Dependency audit job (`pnpm audit --prod`, non-blocking report). Branch protection notes in `docs/ci.md`.
 **Acceptance:** green pipeline on a no-op PR; failing test blocks merge.
