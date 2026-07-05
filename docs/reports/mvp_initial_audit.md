@@ -233,7 +233,7 @@ the prior PostCSS advisory through a root pnpm override.
 Command run:
 
 ```bash
-rg -n "Q-Shield|Q-Scan|Q-Vault|Q-Notary|qshield|Q Shield" . \
+rg -n "<legacy suite/module name patterns>" . \
   --glob '!node_modules/**' \
   --glob '!.git/**' \
   --glob '!*.pdf' \

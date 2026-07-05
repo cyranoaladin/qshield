@@ -158,13 +158,12 @@ QuantaLayer publiera au minimum la spécification QES/QCI, les pondérations ver
 
 ## 9. Claims Interdits
 
-- QuantaLayer protects Solana.
-- QuantaLayer makes Solana quantum-safe.
-- QuantaLayer Vault is secure before audits.
-- QuantaLayer is NIST certified.
-- QuantaLayer is ANSSI certified.
-- FIPS 206 is final.
-- SIMD-0461 is active or adopted.
-- QES predicts hacking.
-- QCI guarantees accuracy.
-- Authority Exposure replaces an audit.
+- Ne pas prétendre que QuantaLayer apporte une protection globale à Solana.
+- Ne pas présenter Solana comme rendue sûre face au quantique par QuantaLayer.
+- Ne pas présenter Vault comme sûr ou audité avant audits publics réels.
+- Ne pas revendiquer de certification NIST ou ANSSI.
+- Ne pas présenter FIPS 206 comme final sans source primaire NIST.
+- Ne pas présenter SIMD-0461 comme actif, fusionné, adopté ou trajectoire protocolaire confirmée.
+- Ne pas présenter QES comme une probabilité de piratage.
+- Ne pas présenter QCI comme une garantie d'exactitude.
+- Ne pas présenter Authority Exposure comme un substitut à un audit.
