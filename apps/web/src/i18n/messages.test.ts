@@ -8,7 +8,11 @@ describe("getMessages", () => {
 
     expect(messages.home.primaryAction).toBe("Scanner une adresse");
     expect(messages.home.eyebrow).toBe("Post-Quantum Readiness for Solana");
+    expect(messages.common.apiError).toBe("Service indisponible. Réessayez plus tard.");
     expect(messages.metadata.title).toBe("QuantaLayer");
+    expect(messages.results.loading).toBe("Analyse des données publiques...");
+    expect(messages.stats.title).toBe("Tableau de bord agrégé");
+    expect(messages.waitlist.submit).toBe("Rejoindre la liste");
   });
 
   it("keeps English secondary locale content available", () => {

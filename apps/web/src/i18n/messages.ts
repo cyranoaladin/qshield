@@ -1,7 +1,7 @@
 export const messages = {
   en: {
     common: {
-      apiError: "Scan unavailable. Please try again later.",
+      apiError: "Service unavailable. Please try again later.",
       backHome: "Back to scan",
       researchNote: "Research Note #1",
     },
@@ -109,7 +109,7 @@ export const messages = {
   },
   fr: {
     common: {
-      apiError: "Scan indisponible. Réessayez plus tard.",
+      apiError: "Service indisponible. Réessayez plus tard.",
       backHome: "Retour au scan",
       researchNote: "Research Note #1",
     },
@@ -117,12 +117,13 @@ export const messages = {
       description:
         "Mesurez la criticité de migration Solana avec QES/QCI avant de préparer une stratégie post-quantique.",
       eyebrow: "Post-Quantum Readiness for Solana",
-      inputHelp: "Collez une adresse publique Solana. Aucune connexion wallet n'est requise.",
+      inputHelp: "Collez une adresse publique Solana. Aucune connexion de wallet n'est requise.",
       inputLabel: "Adresse Solana",
       inputPlaceholder: "11111111111111111111111111111111",
       logoAlt: "Logo QuantaLayer",
       primaryAction: "Scanner une adresse",
-      readOnly: "Lecture seule - nous ne demandons jamais de seed phrase.",
+      readOnly:
+        "Lecture seule - aucune seed phrase, clé privée ou signature de transaction n'est demandée.",
       secondaryAction: "Lire la note de recherche",
       statsAction: "Voir les statistiques agrégées",
       title: "QuantaLayer",
@@ -130,34 +131,34 @@ export const messages = {
     learn: {
       cards: [
         {
-          body: "Les comptes Solana contrôlés par keypair utilisent une clé publique Ed25519 comme adresse. Les Program Derived Addresses sont hors courbe et contrôlées par la logique d'un programme, pas par une clé privée.",
+          body: "Les comptes Solana contrôlés par une paire de clés utilisent une clé publique Ed25519 comme adresse. Les PDA (Program Derived Addresses) sont hors courbe et contrôlées par la logique d'un programme, pas par une clé privée.",
           title: "Modèle d'adresse",
         },
         {
-          body: "L'algorithme de Shor menacerait les signatures sur courbes elliptiques si un ordinateur quantique cryptographiquement pertinent existait. Grover n'apporte qu'une accélération quadratique contre les hashes.",
+          body: "L'algorithme de Shor menacerait les signatures à courbes elliptiques si un ordinateur quantique cryptographiquement pertinent existait. Grover n'apporte qu'une accélération quadratique contre les fonctions de hachage.",
           title: "Contexte cryptographique",
         },
         {
-          body: "QuantaLayer Scan estime la criticité de migration et la confiance à partir des actifs observables, du stake, de l'ancienneté, de l'activité récente et de la complétude des données. Ce n'est pas un audit de sécurité.",
+          body: "QuantaLayer Scan estime la criticité de migration et le niveau de confiance à partir des actifs observables, du staking, de l'ancienneté, de l'activité récente et de la complétude des données. Ce n'est pas un audit de sécurité.",
           title: "Ce que Scan mesure",
         },
         {
-          body: "Scan ne migre pas les comptes, ne signe pas de transactions, ne garde pas d'actifs et n'effectue pas la migration protocolaire de Solana.",
+          body: "Scan ne migre pas les comptes, ne signe pas de transactions, ne conserve pas d'actifs et n'effectue pas la migration protocolaire de Solana.",
           title: "Ce que Scan ne mesure pas",
         },
         {
-          body: "QuantaLayer Vault reste expérimental et ne doit pas être utilisé avec de vrais fonds avant tests devnet publics, audits, plafonds et documentation de recovery.",
+          body: "QuantaLayer Vault reste expérimental et ne doit pas être utilisé avec de vrais fonds avant la publication de tests devnet publics, d'audits, de plafonds et d'une documentation de récupération.",
           title: "Statut du Vault",
         },
       ],
       description:
-        "Une explication concise des raisons pour lesquelles la préparation post-quantique Solana implique wallets, authorities, programmes, token accounts et qualité des données.",
+        "Une explication concise de la préparation post-quantique de Solana : portefeuilles, autorités, programmes, comptes de tokens et qualité des données.",
       sources:
         "Sources principales : Research Note publique, documentation Solana et travaux écosystème cités.",
       title: "Pourquoi la readiness Solana est différente",
     },
     metadata: {
-      description: "Couche de préparation post-quantique pour comptes et authorities Solana.",
+      description: "Couche de préparation post-quantique pour les comptes et autorités Solana.",
       title: "QuantaLayer",
     },
     results: {
@@ -166,18 +167,18 @@ export const messages = {
         observableAge: "Ancienneté observable",
         observableAssetValue: "Valeur observable",
         recentActivity: "Activité récente",
-        significantTokenAccounts: "Token accounts significatifs",
-        stakedOrLockedAssets: "Actifs stakés ou verrouillés",
+        significantTokenAccounts: "Comptes de tokens significatifs",
+        stakedOrLockedAssets: "Actifs en staking ou verrouillés",
       },
       breakdownEmpty: "Aucun détail de score n'est affiché pour cet état de scan.",
       breakdownTitle: "Détail du score",
       cacheHit: "Servi depuis le cache",
-      cacheMiss: "Scan frais",
-      empty: "Aucun résultat de scan.",
+      cacheMiss: "Nouveau scan",
+      empty: "Aucun résultat.",
       gradeHidden: "Grade masqué car le QCI est inférieur à 40.",
       gradeInsufficientData: "Grade masqué car les données sont insuffisantes.",
       gradeNotApplicable: "Grade non applicable pour cette adresse.",
-      loading: "Scan des données publiques...",
+      loading: "Analyse des données publiques...",
       qci: "QCI",
       qes: "QES",
       recommendationsTitle: "Recommandations",
@@ -188,7 +189,7 @@ export const messages = {
     },
     scan: {
       description:
-        "Cette page analyse des données publiques Solana et retourne QES/QCI avec règles d'affichage liées à la confiance.",
+        "Cette page analyse des données publiques Solana et retourne QES/QCI selon le niveau de confiance des données.",
       title: "Résultat du scan",
     },
     stats: {
@@ -198,21 +199,21 @@ export const messages = {
         "Métriques agrégées QuantaLayer Scan. Aucune adresse brute ni classement public n'est affiché.",
       gradeDistribution: "Distribution des grades",
       lastScanTimestamp: "Dernier scan",
-      title: "Dashboard agrégé",
+      title: "Tableau de bord agrégé",
       totalEstimatedMigrationExposureValueUsd: "Valeur observable totale",
-      totalScans: "Scans totaux",
+      totalScans: "Total des scans",
     },
     waitlist: {
       consent: "J'accepte d'être contacté au sujet des mises à jour QuantaLayer.",
-      description: "Rejoindre la liste beta privée de QuantaLayer Scan.",
-      duplicate: "Cet email est déjà inscrit.",
-      emailLabel: "Email",
+      description: "Rejoindre la liste de bêta privée de QuantaLayer Scan.",
+      duplicate: "Cette adresse e-mail est déjà inscrite.",
+      emailLabel: "E-mail",
       sourceLabel: "Source",
-      submit: "Rejoindre la waitlist",
+      submit: "Rejoindre la liste",
       success: "Inscription enregistrée.",
-      title: "Waitlist",
+      title: "Liste d'attente",
       walletHelp: "Optionnel. Adresse publique Solana uniquement.",
-      walletLabel: "Wallet",
+      walletLabel: "Adresse Solana publique",
     },
   },
 } as const;
