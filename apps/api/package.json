@@ -12,9 +12,14 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@quantalayer/scoring": "workspace:*",
     "@quantalayer/shared": "workspace:*",
+    "@quantalayer/solana": "workspace:*",
     "dotenv": "17.2.3",
-    "fastify": "5.9.0"
+    "fastify": "5.9.0",
+    "ioredis": "5.11.1",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/node": "26.1.0",
