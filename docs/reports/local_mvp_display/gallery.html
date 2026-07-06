@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QuantaLayer Local MVP Display</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #f7faf9;
+        --border: #dfe7e5;
+        --foreground: #17202a;
+        --muted: #5f6f6d;
+        --primary: #167f75;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--foreground);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 1480px;
+        padding: 40px 28px 56px;
+      }
+
+      header {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+
+      h1 {
+        font-size: clamp(32px, 5vw, 58px);
+        line-height: 1;
+        margin: 0;
+      }
+
+      p {
+        color: var(--muted);
+        line-height: 1.55;
+        margin: 0;
+      }
+
+      a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .grid {
+        display: grid;
+        gap: 22px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+
+      .shot {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+        padding: 16px;
+      }
+
+      .shot img {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: block;
+        height: 360px;
+        object-fit: contain;
+        object-position: top center;
+        width: 100%;
+      }
+
+      .shot h2 {
+        font-size: 18px;
+        line-height: 1.2;
+        margin: 0;
+      }
+
+      .shot p {
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p>QuantaLayer Scan MVP</p>
+        <h1>Local MVP Display</h1>
+        <p>
+          Captures from the local Next.js frontend connected to scripts/mock-mvp-api.ts. No real
+          provider, API or database calls.
+        </p>
+      </header>
+      <section class="grid" aria-label="Local MVP screenshots">
+        <article class="shot">
+          <a href="./01-local-landing.png">
+            <img alt="Landing" src="./01-local-landing.png" />
+          </a>
+          <h2>Landing</h2>
+          <p><a href="./01-local-landing.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./02-local-scan-success.png">
+            <img alt="Scan success" src="./02-local-scan-success.png" />
+          </a>
+          <h2>Scan success</h2>
+          <p><a href="./02-local-scan-success.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./03-local-scan-low-confidence.png">
+            <img alt="Scan low confidence" src="./03-local-scan-low-confidence.png" />
+          </a>
+          <h2>Scan low confidence</h2>
+          <p><a href="./03-local-scan-low-confidence.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./04-local-scan-pda.png">
+            <img alt="Scan PDA" src="./04-local-scan-pda.png" />
+          </a>
+          <h2>Scan PDA</h2>
+          <p><a href="./04-local-scan-pda.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./05-local-scan-error.png">
+            <img alt="Scan error" src="./05-local-scan-error.png" />
+          </a>
+          <h2>Scan error</h2>
+          <p><a href="./05-local-scan-error.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./06-local-waitlist.png">
+            <img alt="Waitlist success" src="./06-local-waitlist.png" />
+          </a>
+          <h2>Waitlist success</h2>
+          <p><a href="./06-local-waitlist.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./07-local-learn.png">
+            <img alt="Learn" src="./07-local-learn.png" />
+          </a>
+          <h2>Learn</h2>
+          <p><a href="./07-local-learn.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./08-local-stats.png">
+            <img alt="Stats" src="./08-local-stats.png" />
+          </a>
+          <h2>Stats</h2>
+          <p><a href="./08-local-stats.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./09-local-og-card.png">
+            <img alt="OG card" src="./09-local-og-card.png" />
+          </a>
+          <h2>OG card</h2>
+          <p><a href="./09-local-og-card.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./10-local-scan-loading.png">
+            <img alt="Scan loading" src="./10-local-scan-loading.png" />
+          </a>
+          <h2>Scan loading</h2>
+          <p><a href="./10-local-scan-loading.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./11-local-waitlist-duplicate.png">
+            <img alt="Waitlist duplicate" src="./11-local-waitlist-duplicate.png" />
+          </a>
+          <h2>Waitlist duplicate</h2>
+          <p><a href="./11-local-waitlist-duplicate.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./12-local-waitlist-error.png">
+            <img alt="Waitlist error" src="./12-local-waitlist-error.png" />
+          </a>
+          <h2>Waitlist error</h2>
+          <p><a href="./12-local-waitlist-error.png">Open original PNG</a></p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
