@@ -17,6 +17,7 @@
     "@quantalayer/scoring": "workspace:*",
     "@quantalayer/shared": "workspace:*",
     "@quantalayer/solana": "workspace:*",
+    "@sentry/node": "^10.63.0",
     "dotenv": "17.2.3",
     "fastify": "5.9.0",
     "ioredis": "5.11.1",

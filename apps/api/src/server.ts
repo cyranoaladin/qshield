@@ -44,6 +44,7 @@ export type ScanResponse = QesResult & {
 export type BuildServerOptions = {
   readonly cache?: CacheAdapter;
   readonly corsOrigin?: string;
+  readonly captureException?: (error: unknown) => void;
   readonly logger?: FastifyServerOptions["logger"];
   readonly rateLimiter?: RateLimiter;
   readonly scanCacheTtlSeconds?: number;
@@ -90,8 +91,24 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
     origin: options.corsOrigin ?? false,
   });
 
+  server.addHook("onRequest", async (_request, reply) => {
+    reply.header(
+      "content-security-policy",
+      "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+    );
+    reply.header("cross-origin-resource-policy", "same-origin");
+    reply.header("permissions-policy", "camera=(), microphone=(), geolocation=()");
+    reply.header("referrer-policy", "no-referrer");
+    reply.header("x-content-type-options", "nosniff");
+    reply.header("x-frame-options", "DENY");
+  });
+
   server.setErrorHandler((error, request, reply) => {
     const problem = toProblemJson(error, request.url);
+
+    if (problem.status >= 500) {
+      options.captureException?.(error);
+    }
 
     request.log.warn(
       {

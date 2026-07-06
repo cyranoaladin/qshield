@@ -13,6 +13,7 @@
     "db:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://quantalayer:quantalayer@localhost:5432/quantalayer} prisma validate",
     "dev": "pnpm -r --parallel --filter @quantalayer/web --filter @quantalayer/api dev",
     "lint": "prettier --check . && eslint .",
+    "loadtest:scan": "k6 run scripts/loadtest-scan.js",
     "typecheck": "pnpm db:generate && pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:coverage": "pnpm -r test:coverage",
@@ -34,6 +35,8 @@
   },
   "pnpm": {
     "overrides": {
+      "effect": "3.20.0",
+      "jayson>uuid": "11.1.1",
       "postcss": "8.5.16"
     }
   }

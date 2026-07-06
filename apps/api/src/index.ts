@@ -1,6 +1,7 @@
 import { config as loadDotenv } from "dotenv";
 import { Redis } from "ioredis";
 import { PrismaClient } from "@prisma/client";
+import * as Sentry from "@sentry/node";
 
 import { formatEnvWarning } from "@quantalayer/shared";
 import { HeliusClient, JupiterPriceClient, RedisCache, scanAddress } from "@quantalayer/solana";
@@ -17,6 +18,15 @@ const config = readApiConfig(process.env, {
     console.warn(formatEnvWarning(warning));
   },
 });
+
+if (config.env.sentryDsn !== undefined) {
+  Sentry.init({
+    dsn: config.env.sentryDsn,
+    environment: config.env.nodeEnv,
+    tracesSampleRate: 0,
+  });
+}
+
 const redis = new Redis(config.env.redisUrl, {
   lazyConnect: false,
   maxRetriesPerRequest: 2,
@@ -50,6 +60,13 @@ const server = buildServer({
   },
   scanStore: new PrismaMvpStore(prisma),
   waitlistStore: new PrismaMvpStore(prisma),
+  ...(config.env.sentryDsn === undefined
+    ? {}
+    : {
+        captureException: (error: unknown) => {
+          Sentry.captureException(error);
+        },
+      }),
 });
 
 server.addHook("onClose", async () => {
