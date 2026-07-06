@@ -19,6 +19,12 @@ const screenshots = [
   ["09-learn-why-solana.png", "Learn why Solana"],
   ["10-stats-dashboard.png", "Stats dashboard"],
   ["11-og-score-card.png", "OG score card"],
+  ["12-waitlist-mobile.png", "Waitlist mobile"],
+  ["13-learn-mobile.png", "Learn mobile"],
+  ["14-stats-mobile.png", "Stats mobile"],
+  ["15-scan-loading.png", "Scan loading"],
+  ["16-waitlist-duplicate.png", "Waitlist duplicate"],
+  ["17-waitlist-error.png", "Waitlist error"],
 ] as const;
 
 function main() {

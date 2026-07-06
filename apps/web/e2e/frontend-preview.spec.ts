@@ -102,6 +102,7 @@ test.skip(
   process.env.FRONTEND_PREVIEW !== "1",
   "Frontend preview capture is an explicit manual run.",
 );
+test.setTimeout(120_000);
 
 test("capture frontend preview screenshots with mocked API responses", async ({
   context,
@@ -118,9 +119,14 @@ test("capture frontend preview screenshots with mocked API responses", async ({
           typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
         if (url.includes("/api/v1/scan")) {
+          const delayMs = Number(
+            window.localStorage.getItem("__quantalayer_preview_scan_delay_ms") ?? "0",
+          );
+
           return jsonResponse(
             window.localStorage.getItem("__quantalayer_preview_scan_payload") ?? "{}",
             Number(window.localStorage.getItem("__quantalayer_preview_scan_status") ?? "200"),
+            delayMs,
           );
         }
 
@@ -129,9 +135,24 @@ test("capture frontend preview screenshots with mocked API responses", async ({
         }
 
         if (url.includes("/api/v1/waitlist")) {
+          const waitlistState =
+            window.localStorage.getItem("__quantalayer_preview_waitlist_state") ?? "success";
+
+          if (waitlistState === "error") {
+            return jsonResponse(
+              JSON.stringify({
+                code: "WAITLIST_UNAVAILABLE",
+                status: 500,
+                title: "Waitlist unavailable",
+                type: "about:blank",
+              }),
+              500,
+            );
+          }
+
           return jsonResponse(
             JSON.stringify({
-              duplicate: false,
+              duplicate: waitlistState === "duplicate",
               message: "ok",
               status: "ok",
             }),
@@ -141,15 +162,21 @@ test("capture frontend preview screenshots with mocked API responses", async ({
         return originalFetch(input, init);
       };
 
-      function jsonResponse(body: string, status = 200) {
-        return Promise.resolve(
-          new Response(body, {
-            headers: {
-              "content-type": "application/json",
-            },
-            status,
-          }),
-        );
+      function jsonResponse(body: string, status = 200, delayMs = 0) {
+        const response = new Response(body, {
+          headers: {
+            "content-type": "application/json",
+          },
+          status,
+        });
+
+        if (delayMs > 0) {
+          return new Promise<Response>((resolve) => {
+            window.setTimeout(() => resolve(response), delayMs);
+          });
+        }
+
+        return Promise.resolve(response);
       }
     },
     { statsPayload: stats },
@@ -178,8 +205,23 @@ test("capture frontend preview screenshots with mocked API responses", async ({
     height: 1200,
     width: 1440,
   });
-  await captureStats(page);
+  await captureStats(page, "10-stats-dashboard.png", {
+    height: 1200,
+    width: 1440,
+  });
   await captureOgCard(request);
+  await captureWaitlistMobile(page);
+  await captureStaticPage(page, "/learn/why-solana", "13-learn-mobile.png", {
+    height: 930,
+    width: 390,
+  });
+  await captureStats(page, "14-stats-mobile.png", {
+    height: 930,
+    width: 390,
+  });
+  await captureScanLoading(page);
+  await captureWaitlistDuplicate(page);
+  await captureWaitlistError(page);
 });
 
 async function captureLanding(page: Page) {
@@ -232,20 +274,50 @@ async function captureScanError(page: Page) {
 
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto(`/scan/${address}`);
-  await expect(page.getByText("Scan indisponible. Réessayez plus tard.")).toBeVisible();
+  await expect(page.getByText("Service indisponible. Réessayez plus tard.")).toBeVisible();
   await captureScreenshot(page, "07-scan-error.png");
 }
 
 async function captureWaitlist(page: Page) {
+  await setWaitlistState(page, "success");
   await page.setViewportSize({ height: 1000, width: 1440 });
-  await page.goto("/waitlist");
-  await page.getByLabel("Email").fill("preview@example.invalid");
-  await page.getByLabel("Wallet").fill(address);
-  await page.getByLabel("Source").fill("frontend preview");
-  await page.getByLabel("J'accepte d'être contacté au sujet des mises à jour QuantaLayer.").check();
-  await page.getByRole("button", { name: "Rejoindre la waitlist" }).click();
+  await submitWaitlistPreview(page, "preview@example.invalid");
   await expect(page.getByText("Inscription enregistrée.")).toBeVisible();
   await captureScreenshot(page, "08-waitlist.png");
+}
+
+async function captureWaitlistMobile(page: Page) {
+  await setWaitlistState(page, "success");
+  await page.setViewportSize({ height: 930, width: 390 });
+  await submitWaitlistPreview(page, "preview-mobile@example.invalid");
+  await expect(page.getByText("Inscription enregistrée.")).toBeVisible();
+  await captureScreenshot(page, "12-waitlist-mobile.png");
+}
+
+async function captureScanLoading(page: Page) {
+  await setScanMock(page, successScan, 200, 5000);
+
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto(`/scan/${address}`);
+  await expect(page.getByText("Analyse des données publiques...")).toBeVisible();
+  await captureScreenshot(page, "15-scan-loading.png");
+  await setScanMock(page, successScan, 200);
+}
+
+async function captureWaitlistDuplicate(page: Page) {
+  await setWaitlistState(page, "duplicate");
+  await page.setViewportSize({ height: 1000, width: 1440 });
+  await submitWaitlistPreview(page, "duplicate@example.invalid");
+  await expect(page.getByText("Cette adresse e-mail est déjà inscrite.")).toBeVisible();
+  await captureScreenshot(page, "16-waitlist-duplicate.png");
+}
+
+async function captureWaitlistError(page: Page) {
+  await setWaitlistState(page, "error");
+  await page.setViewportSize({ height: 1000, width: 1440 });
+  await submitWaitlistPreview(page, "error@example.invalid");
+  await expect(page.getByText("Service indisponible. Réessayez plus tard.")).toBeVisible();
+  await captureScreenshot(page, "17-waitlist-error.png");
 }
 
 async function captureStaticPage(
@@ -260,11 +332,16 @@ async function captureStaticPage(
   await captureScreenshot(page, filename);
 }
 
-async function captureStats(page: Page) {
-  await page.setViewportSize({ height: 1200, width: 1440 });
+async function captureStats(
+  page: Page,
+  filename: string,
+  viewport: { readonly height: number; readonly width: number },
+) {
+  await page.setViewportSize(viewport);
   await page.goto("/stats");
   await expect(page.getByText("128")).toBeVisible();
-  await captureScreenshot(page, "10-stats-dashboard.png");
+  await expect(page.getByRole("meter", { name: "C" })).toBeVisible();
+  await captureScreenshot(page, filename);
 }
 
 async function captureOgCard(request: APIRequestContext) {
@@ -274,18 +351,35 @@ async function captureOgCard(request: APIRequestContext) {
   await writeFile(path.join(outputDir, "11-og-score-card.png"), await response.body());
 }
 
-async function setScanMock(page: Page, payload: unknown, status: number) {
+async function setScanMock(page: Page, payload: unknown, status: number, delayMs = 0) {
   await page.goto("/");
   await page.evaluate(
-    ({ nextPayload, nextStatus }) => {
+    ({ nextDelayMs, nextPayload, nextStatus }) => {
       window.localStorage.setItem(
         "__quantalayer_preview_scan_payload",
         JSON.stringify(nextPayload),
       );
       window.localStorage.setItem("__quantalayer_preview_scan_status", String(nextStatus));
+      window.localStorage.setItem("__quantalayer_preview_scan_delay_ms", String(nextDelayMs));
     },
-    { nextPayload: payload, nextStatus: status },
+    { nextDelayMs: delayMs, nextPayload: payload, nextStatus: status },
   );
+}
+
+async function setWaitlistState(page: Page, state: "duplicate" | "error" | "success") {
+  await page.goto("/");
+  await page.evaluate((nextState) => {
+    window.localStorage.setItem("__quantalayer_preview_waitlist_state", nextState);
+  }, state);
+}
+
+async function submitWaitlistPreview(page: Page, email: string) {
+  await page.goto("/waitlist");
+  await page.getByLabel("E-mail").fill(email);
+  await page.getByLabel("Adresse Solana publique").fill(address);
+  await page.getByLabel("Source").fill("frontend preview");
+  await page.getByLabel("J'accepte d'être contacté au sujet des mises à jour QuantaLayer.").check();
+  await page.getByRole("button", { name: "Rejoindre la liste" }).click();
 }
 
 async function captureScreenshot(page: Page, filename: string) {

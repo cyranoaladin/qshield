@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { requestStats, type StatsApiResponse } from "@/lib/api";
 
+const GRADE_ORDER = ["A", "B", "C", "D", "E", "N/A"] as const;
+
 type StatsDashboardClientProps = {
   readonly copy: {
     readonly apiError: string;
@@ -69,17 +71,7 @@ export function StatsDashboardClient({ copy }: StatsDashboardClientProps) {
       </div>
       <section className="rounded-lg border bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold">{copy.stats.gradeDistribution}</h2>
-        <div className="mt-4 grid gap-3">
-          {Object.entries(stats.gradeDistribution).map(([grade, count]) => (
-            <div
-              className="flex items-center justify-between rounded-md bg-background p-3"
-              key={grade}
-            >
-              <span className="font-medium">{grade}</span>
-              <span className="tabular-nums text-foreground/70">{count}</span>
-            </div>
-          ))}
-        </div>
+        <GradeDistribution distribution={stats.gradeDistribution} />
       </section>
       <MetricCard
         label={copy.stats.lastScanTimestamp}
@@ -93,6 +85,43 @@ export function StatsDashboardClient({ copy }: StatsDashboardClientProps) {
   );
 }
 
+function GradeDistribution({
+  distribution,
+}: {
+  readonly distribution: StatsApiResponse["gradeDistribution"];
+}) {
+  const entries = orderedGradeEntries(distribution);
+  const maxCount = Math.max(...entries.map(([, count]) => count), 0);
+  const ariaMax = Math.max(maxCount, 1);
+
+  return (
+    <div className="mt-4 grid gap-3">
+      {entries.map(([grade, count]) => {
+        const width = maxCount === 0 ? 0 : (count / maxCount) * 100;
+
+        return (
+          <div className="flex items-center gap-3" key={grade}>
+            <span className="w-10 shrink-0 text-sm font-medium">{grade}</span>
+            <div
+              aria-label={grade}
+              aria-valuemax={ariaMax}
+              aria-valuemin={0}
+              aria-valuenow={count}
+              className="h-2 min-w-0 flex-1 rounded-full bg-primary/10"
+              role="meter"
+            >
+              <div className="h-2 rounded-full bg-primary/80" style={{ width: `${width}%` }} />
+            </div>
+            <span className="w-20 shrink-0 text-right text-sm tabular-nums text-foreground/70">
+              {formatInteger(count)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function MetricCard({ label, value }: { readonly label: string; readonly value: string }) {
   return (
     <section className="rounded-lg border bg-white p-5 shadow-sm">
@@ -100,6 +129,19 @@ function MetricCard({ label, value }: { readonly label: string; readonly value: 
       <p className="mt-3 text-3xl font-semibold tabular-nums">{value}</p>
     </section>
   );
+}
+
+function orderedGradeEntries(distribution: StatsApiResponse["gradeDistribution"]) {
+  const knownEntries = GRADE_ORDER.filter((grade) => distribution[grade] !== undefined).map(
+    (grade) => [grade, distribution[grade] ?? 0] as const,
+  );
+  const customEntries = Object.entries(distribution).filter(([grade]) => !isKnownGrade(grade));
+
+  return [...knownEntries, ...customEntries];
+}
+
+function isKnownGrade(grade: string): grade is (typeof GRADE_ORDER)[number] {
+  return (GRADE_ORDER as readonly string[]).includes(grade);
 }
 
 function formatInteger(value: number): string {

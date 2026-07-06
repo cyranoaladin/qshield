@@ -39,7 +39,7 @@ test("scan page shows a sober error on provider failure", async ({ page }) => {
 
   await page.goto("/scan/not-base58-0000");
 
-  await expect(page.getByText("Scan indisponible. Réessayez plus tard.")).toBeVisible();
+  await expect(page.getByText("Service indisponible. Réessayez plus tard.")).toBeVisible();
 });
 
 test("waitlist flow submits explicit consent", async ({ page }) => {
@@ -65,11 +65,11 @@ test("waitlist flow submits explicit consent", async ({ page }) => {
   });
 
   await page.goto("/waitlist");
-  await page.getByLabel("Email").fill("research@quantalayer.app");
-  await page.getByLabel("Wallet").fill(scanAddress);
+  await page.getByLabel("E-mail").fill("research@quantalayer.app");
+  await page.getByLabel("Adresse Solana publique").fill(scanAddress);
   await page.getByLabel("Source").fill("e2e");
   await page.getByLabel("J'accepte d'être contacté au sujet des mises à jour QuantaLayer.").check();
-  await page.getByRole("button", { name: "Rejoindre la waitlist" }).click();
+  await page.getByRole("button", { name: "Rejoindre la liste" }).click();
 
   await expect(page.getByText("Inscription enregistrée.")).toBeVisible();
 });
@@ -99,9 +99,11 @@ test("stats page renders aggregate metrics without raw addresses", async ({ page
 
   await page.goto("/stats");
 
-  await expect(page.getByText("Dashboard agrégé")).toBeVisible();
-  await expect(page.getByText("Scans totaux")).toBeVisible();
+  await expect(page.getByText("Tableau de bord agrégé")).toBeVisible();
+  await expect(page.getByText("Total des scans")).toBeVisible();
   await expect(page.getByText("125\u202f000\u00a0$US")).toBeVisible();
+  await expect(page.getByRole("meter", { name: "C" })).toHaveAttribute("aria-valuenow", "3");
+  await expect(page.getByRole("meter", { name: "C" })).toHaveAttribute("aria-valuemax", "3");
   await expect(page.locator("body")).not.toContainText(scanAddress);
 });
 
