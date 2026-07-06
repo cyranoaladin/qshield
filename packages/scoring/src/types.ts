@@ -1,3 +1,5 @@
+import type { QCI_VERSION, QES_VERSION } from "./weights.js";
+
 export type AccountClass = "multisig" | "pda" | "program" | "system" | "unknown";
 
 export type QciInput = {
@@ -45,9 +47,9 @@ export type QesResult = {
   readonly grade: DisplayGrade | null;
   readonly gradeDisplayed: boolean;
   readonly qci: number;
-  readonly qciVersion: "1.0.0";
+  readonly qciVersion: typeof QCI_VERSION;
   readonly qes: number | null;
-  readonly qesVersion: "1.1.0";
+  readonly qesVersion: typeof QES_VERSION;
   readonly recommendations: readonly string[];
   readonly scannedAt: string;
   readonly status: QesStatus;

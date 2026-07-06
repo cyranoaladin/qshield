@@ -13,10 +13,10 @@ describe("calculateQes", () => {
     const result = calculateQes(readFixture("empty-wallet.json"));
 
     expect(result.qes).toBe(0);
-    expect(result.qci).toBe(100);
+    expect(result.qci).toBe(59);
     expect(result.grade).toBe("A");
     expect(result.gradeDisplayed).toBe(true);
-    expect(result.status).toBe("ok");
+    expect(result.status).toBe("fragile_estimate");
     expect(sumBreakdown(result.breakdown)).toBe(result.qes);
   });
 
@@ -39,6 +39,72 @@ describe("calculateQes", () => {
     expect(result.gradeDisplayed).toBe(false);
     expect(result.status).toBe("insufficient_data");
     expect(result.warnings).toContain("QCI below 40: grade and score display are disabled.");
+  });
+
+  it("caps QCI at 79 when concentration is unavailable", () => {
+    const result = calculateQes({
+      ...readFixture("high-value-wallet.json"),
+      concentrationRatio: null,
+    });
+
+    expect(result.qci).toBe(79);
+    expect(result.gradeDisplayed).toBe(true);
+    expect(result.status).toBe("ok");
+    expect(result.warnings).toContain("Concentration unavailable in single-address scan.");
+  });
+
+  it("caps QCI at 69 when two QES factors are unavailable", () => {
+    const result = calculateQes({
+      ...readFixture("high-value-wallet.json"),
+      observableAgeDays: null,
+      daysSinceLastActivity: null,
+    });
+
+    expect(result.qci).toBe(69);
+    expect(result.gradeDisplayed).toBe(true);
+    expect(result.status).toBe("ok");
+  });
+
+  it("caps QCI at 59 when three QES factors are unavailable", () => {
+    const result = calculateQes({
+      ...readFixture("high-value-wallet.json"),
+      concentrationRatio: null,
+      observableAgeDays: null,
+      daysSinceLastActivity: null,
+    });
+
+    expect(result.qci).toBe(59);
+    expect(result.gradeDisplayed).toBe(true);
+    expect(result.status).toBe("fragile_estimate");
+  });
+
+  it("keeps QCI below 40 hidden even when missing-factor caps also apply", () => {
+    const result = calculateQes({
+      ...readFixture("low-confidence-wallet.json"),
+      concentrationRatio: null,
+      observableAgeDays: null,
+      daysSinceLastActivity: null,
+    });
+
+    expect(result.qci).toBe(20);
+    expect(result.qes).toBeNull();
+    expect(result.gradeDisplayed).toBe(false);
+    expect(result.status).toBe("insufficient_data");
+  });
+
+  it("renormalizes QES over observable factors when QES factors are missing", () => {
+    const result = calculateQes({
+      ...readFixture("high-value-wallet.json"),
+      concentrationRatio: null,
+      observableAgeDays: null,
+      daysSinceLastActivity: null,
+    });
+
+    expect(result.qes).not.toBeNull();
+    expect(result.breakdown.concentration).toBe(0);
+    expect(result.breakdown.observableAge).toBe(0);
+    expect(result.breakdown.recentActivity).toBe(0);
+    expect(sumBreakdown(result.breakdown)).toBe(result.qes);
   });
 
   it("marks PDA/off-curve accounts as not applicable to wallet-grade scoring", () => {

@@ -1,4 +1,4 @@
-import { calculateQci } from "./calculate-qci.js";
+import { calculateQci, capQciForMissingQesFactors } from "./calculate-qci.js";
 import { gradeForQes } from "./grade.js";
 import { buildRecommendations } from "./recommendations.js";
 import type { QesFactorKey, QesInput, QesResult } from "./types.js";
@@ -20,7 +20,7 @@ export function calculateQes(input: QesInput): QesResult {
 
   validateQesInput(normalizedInput);
 
-  const qci = calculateQci(input.confidence);
+  const qci = capQciForMissingQesFactors(calculateQci(input.confidence), input);
 
   if (input.accountClass === "pda") {
     const warnings = [

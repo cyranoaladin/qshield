@@ -4,10 +4,11 @@ import { PrismaClient } from "@prisma/client";
 import * as Sentry from "@sentry/node";
 
 import { formatEnvWarning } from "@quantalayer/shared";
-import { HeliusClient, JupiterPriceClient, RedisCache, scanAddress } from "@quantalayer/solana";
+import { RedisCache } from "@quantalayer/solana";
 
 import { readApiConfig } from "./config.js";
-import { MemoryRateLimiter } from "./rate-limit.js";
+import { RedisRateLimiter } from "./redis-rate-limit.js";
+import { buildRuntimeScanProvider } from "./runtime-scan-provider.js";
 import { buildServer } from "./server.js";
 import { PrismaMvpStore } from "./storage.js";
 
@@ -32,32 +33,19 @@ const redis = new Redis(config.env.redisUrl, {
   maxRetriesPerRequest: 2,
 });
 const prisma = new PrismaClient();
-const helius = new HeliusClient({
-  apiKey: config.env.heliusApiKey ?? "",
-  rpcUrl: config.env.heliusRpcUrl,
-});
-const jupiter = new JupiterPriceClient({
-  baseUrl: config.env.jupiterPriceUrl,
-});
 const server = buildServer({
   cache: new RedisCache(redis),
+  cluster: config.env.solanaCluster,
   corsOrigin: config.corsOrigin,
   logger: {
     level: config.env.logLevel,
   },
-  rateLimiter: new MemoryRateLimiter({
+  rateLimiter: new RedisRateLimiter(redis, {
     limit: config.env.rateLimitScansPerMinute,
     windowMs: 60_000,
   }),
   scanCacheTtlSeconds: config.env.scanCacheTtlSeconds,
-  scanProvider: {
-    scanAddress: async (address) =>
-      scanAddress(address, {
-        cluster: config.env.solanaCluster,
-        helius,
-        jupiter,
-      }),
-  },
+  scanProvider: buildRuntimeScanProvider(config.env),
   scanStore: new PrismaMvpStore(prisma),
   waitlistStore: new PrismaMvpStore(prisma),
   ...(config.env.sentryDsn === undefined

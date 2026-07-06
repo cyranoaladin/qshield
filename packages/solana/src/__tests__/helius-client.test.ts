@@ -106,6 +106,52 @@ describe("HeliusClient", () => {
     ).rejects.toBeInstanceOf(UpstreamDataError);
     expect(calls).toBe(1);
   });
+
+  it("queries stake accounts for both staker and withdrawer authorities and deduplicates results", async () => {
+    const offsets: number[] = [];
+    const client = new HeliusClient({
+      apiKey: "test-key",
+      fetchFn: async (_url, init) => {
+        const body = JSON.parse(String(init?.body)) as {
+          readonly params: readonly [
+            string,
+            {
+              readonly filters: readonly [
+                {
+                  readonly memcmp: {
+                    readonly offset: number;
+                  };
+                },
+              ];
+            },
+          ];
+        };
+        const offset = body.params[1].filters[0].memcmp.offset;
+        offsets.push(offset);
+
+        if (offset === 12) {
+          return jsonResponse({
+            result: [stakeAccount("StakeA1111111111111111111111111111111", 1_000_000_000)],
+          });
+        }
+
+        return jsonResponse({
+          result: [
+            stakeAccount("StakeA1111111111111111111111111111111", 1_000_000_000),
+            stakeAccount("StakeB1111111111111111111111111111111", 2_000_000_000),
+          ],
+        });
+      },
+      rpcUrl: "https://example.helius-rpc.com",
+    });
+
+    const accounts = await client.getStakeAccountsByAuthority(
+      "Owner111111111111111111111111111111111",
+    );
+
+    expect(offsets).toEqual([12, 44]);
+    expect(accounts.map((account) => account.lamports)).toEqual([1_000_000_000n, 2_000_000_000n]);
+  });
 });
 
 function fungibleAsset(mint: string, balance: string, decimals: number) {
@@ -123,4 +169,13 @@ function fungibleAsset(mint: string, balance: string, decimals: number) {
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status });
+}
+
+function stakeAccount(pubkey: string, lamports: number) {
+  return {
+    account: {
+      lamports,
+    },
+    pubkey,
+  };
 }

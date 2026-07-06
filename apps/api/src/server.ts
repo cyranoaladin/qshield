@@ -2,7 +2,13 @@ import cors from "@fastify/cors";
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import { z } from "zod";
 
-import { calculateQes, type QesInput, type QesResult } from "@quantalayer/scoring";
+import {
+  QCI_VERSION,
+  QES_VERSION,
+  calculateQes,
+  type QesInput,
+  type QesResult,
+} from "@quantalayer/scoring";
 import {
   API_SERVICE_NAME,
   UpstreamDataError,
@@ -43,6 +49,7 @@ export type ScanResponse = QesResult & {
 
 export type BuildServerOptions = {
   readonly cache?: CacheAdapter;
+  readonly cluster?: "devnet" | "mainnet-beta";
   readonly corsOrigin?: string;
   readonly captureException?: (error: unknown) => void;
   readonly logger?: FastifyServerOptions["logger"];
@@ -75,6 +82,7 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
     logger: options.logger ?? false,
   });
   const cache = options.cache ?? new MemoryCache();
+  const cluster = options.cluster ?? "mainnet-beta";
   const rateLimiter =
     options.rateLimiter ??
     new MemoryRateLimiter({
@@ -147,7 +155,10 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
     const addressHash = sha256Hex(address);
     await rateLimiter.consume(sha256Hex(`ip:${request.ip}`));
 
-    const cacheKey = `scan:${addressHash}`;
+    const cacheKey = scanCacheKey({
+      addressHash,
+      cluster,
+    });
     const cached = await cache.get<QesResult>(cacheKey);
 
     if (cached !== null) {
@@ -265,6 +276,13 @@ function withCache(result: QesResult, hit: boolean, ttlSeconds: number): ScanRes
       ttlSeconds,
     },
   };
+}
+
+function scanCacheKey(options: {
+  readonly addressHash: string;
+  readonly cluster: "devnet" | "mainnet-beta";
+}): string {
+  return `scan:v1:${options.cluster}:qes-${QES_VERSION}:qci-${QCI_VERSION}:${options.addressHash}`;
 }
 
 function normalizeEmail(email: string): string {

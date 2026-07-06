@@ -44,5 +44,6 @@ export const stakeAccountsResultSchema = z.array(
     account: z.object({
       lamports: z.number().int().nonnegative(),
     }),
+    pubkey: z.string(),
   }),
 );

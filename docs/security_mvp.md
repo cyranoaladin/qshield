@@ -13,9 +13,12 @@
 
 - Zod validation on public request bodies.
 - Fail-closed scan behavior: no partial score on provider failure.
-- Redis cache keys derived from address hashes.
+- Redis scan cache keys include cache schema, Solana cluster, QES version, QCI version and the
+  address hash.
 - Scan aggregates store `addressHash`, never the raw scanned address.
-- Rate limiting is enforced per client IP.
+- Runtime rate limiting is Redis-backed and enforced per client IP hash.
+- If Redis is unavailable in staging or production, `/api/v1/scan` fails closed.
+- A missing `HELIUS_API_KEY` fails before Helius client construction or network access.
 - Structured logs must avoid request bodies, emails, private keys and raw scanned addresses.
 - CORS is restricted to `API_CORS_ORIGIN`.
 - API security headers include `nosniff`, `DENY` framing, restrictive permissions policy and API-only CSP.
@@ -41,4 +44,8 @@
 - `pnpm test:coverage`
 - `pnpm build`
 - `pnpm --filter @quantalayer/web test:e2e`
+- `pnpm db:validate`
+- `pnpm audit --prod`
 - k6 load test with API, Redis and provider configuration.
+- `pnpm smoke:providers`, `pnpm smoke:api` and `pnpm smoke:staging` outside CI with staging
+  credentials.

@@ -1,7 +1,7 @@
 import type { QciDimensionKey, QesFactorKey } from "./types.js";
 
 export const QES_VERSION = "1.1.0";
-export const QCI_VERSION = "1.0.0";
+export const QCI_VERSION = "1.0.1";
 
 export const QES_WEIGHTS = {
   concentration: 0.15,

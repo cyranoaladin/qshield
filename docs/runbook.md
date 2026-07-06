@@ -28,9 +28,26 @@ pnpm typecheck
 pnpm test:coverage
 pnpm build
 pnpm --filter @quantalayer/web test:e2e
+pnpm db:validate
+pnpm audit --prod
 ```
 
 7. Start API and web processes.
+
+## Smoke Tests
+
+Smoke tests are manual gates and are not run in CI.
+
+```bash
+HELIUS_API_KEY=... pnpm smoke:providers
+API_URL=http://localhost:3001 pnpm smoke:api
+STAGING_URL=https://staging.example.com pnpm smoke:staging
+```
+
+`smoke:providers` checks Helius, Jupiter and one read-only scan without database writes.
+`smoke:api` checks local `/healthz`, `/api/v1/stats`, `/api/v1/scan` and `/api/v1/waitlist`.
+`smoke:staging` checks health, stats and one scan against staging. It skips waitlist writes unless
+`SMOKE_STAGING_WRITE=true` is set.
 
 ## Rollback
 
@@ -43,7 +60,7 @@ pnpm --filter @quantalayer/web test:e2e
 ## Incident Response
 
 - Provider outage: return 502 problem+json, keep scans fail-closed and disable public status messaging that implies account compromise.
-- Redis outage: disable cache only if API still respects rate limits; otherwise fail closed.
+- Redis outage: scan fails closed because runtime rate limiting is Redis-backed.
 - Database outage: scans may be blocked if aggregate persistence cannot be completed.
 - Abuse spike: lower `RATE_LIMIT_SCANS_PER_MINUTE`, block abusive IPs at the edge and monitor 429 rate.
 - Claim or phishing incident: update `docs/claims_matrix.md`, publish clarification and rotate affected public copy.

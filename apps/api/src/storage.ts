@@ -133,6 +133,8 @@ export class PrismaMvpStore implements ScanAggregateStore, WaitlistStore {
   }
 
   async getStats(): Promise<AggregateStats> {
+    // TODO(public-beta): replace this MVP table scan with Prisma aggregate/groupBy queries or a
+    // materialized aggregate table before scan volume grows.
     const rows = await this.prisma.scan.findMany({
       select: {
         addressHash: true,

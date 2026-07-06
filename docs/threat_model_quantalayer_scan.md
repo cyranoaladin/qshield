@@ -36,20 +36,22 @@ signatures.
 - Users may scan addresses they do not control.
 - Attackers may use public scores as targeting or phishing context.
 - A missing Helius key must fail before network access.
+- Redis is part of the runtime security boundary for rate limiting; scan should fail closed if Redis
+  cannot enforce limits.
 
 ## Abuse Cases And Mitigations
 
-| Abuse case                                        | Risk                                                   | Mitigation                                                                |
-| ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
-| API scraping to build high-exposure address lists | Targeting and privacy harm                             | Per-IP rate limit, cache, no public leaderboard, no raw address stats     |
-| Whale targeting through shared scores             | Harassment or phishing                                 | No nominative ranking, conservative display, no urgency language          |
-| Fake reports or phishing prompts                  | Users may be tricked into signing or revealing secrets | Read-only warnings, official domain links, never request secrets          |
-| False precision from incomplete data              | Users may over-trust QES                               | QCI controls grade display; low QCI hides grade                           |
-| Dusting / spam token manipulation                 | Token count inflation                                  | Minimum value threshold, spam down-weighting, QCI reduction when polluted |
-| RPC/DAS compromise or malformed data              | Incorrect score or unsafe UI                           | Zod validation, fail-closed errors, no partial score                      |
-| Price provider outage                             | Misvaluation                                           | Batch requests, mark unresolved prices, lower QCI                         |
-| Cache poisoning                                   | Stale or wrong results                                 | Typed cache values, TTL, address-hash keys                                |
-| Log leakage                                       | Addresses or emails exposed in logs                    | Hash/truncate addresses; never log request bodies or emails               |
+| Abuse case                                        | Risk                                                   | Mitigation                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| API scraping to build high-exposure address lists | Targeting and privacy harm                             | Per-IP rate limit, cache, no public leaderboard, no raw address stats        |
+| Whale targeting through shared scores             | Harassment or phishing                                 | No nominative ranking, conservative display, no urgency language             |
+| Fake reports or phishing prompts                  | Users may be tricked into signing or revealing secrets | Read-only warnings, official domain links, never request secrets             |
+| False precision from incomplete data              | Users may over-trust QES                               | QCI controls grade display; missing QES factors cap QCI; low QCI hides grade |
+| Dusting / spam token manipulation                 | Token count inflation                                  | Minimum value threshold, spam down-weighting, QCI reduction when polluted    |
+| RPC/DAS compromise or malformed data              | Incorrect score or unsafe UI                           | Zod validation, fail-closed errors, no partial score                         |
+| Price provider outage                             | Misvaluation                                           | Batch requests, mark unresolved prices, lower QCI                            |
+| Cache poisoning                                   | Stale or wrong results                                 | Typed cache values, TTL, versioned cluster/QES/QCI address-hash keys         |
+| Log leakage                                       | Addresses or emails exposed in logs                    | Hash/truncate addresses; never log request bodies or emails                  |
 
 ## QuantaLayer Scan Specific Risks
 
@@ -64,6 +66,10 @@ signatures.
 
 The API must fail closed when required provider data is malformed or incomplete. It should return a
 problem JSON response rather than a guessed partial score.
+
+Stake-account discovery queries both staker and withdrawer authority offsets and deduplicates
+accounts by pubkey. If a provider cannot return either query, the scan path fails closed rather than
+publishing a partial score.
 
 ## Privacy Policy For MVP Data
 

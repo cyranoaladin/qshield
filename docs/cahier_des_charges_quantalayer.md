@@ -85,6 +85,11 @@ QCI(a) = round(100 × Σ v_k × c_k(a))
 
 Aucun grade A/B/C/D/E ne doit être affiché si `QCI < 40`.
 
+Si un ou plusieurs facteurs QES ne sont pas observables, QES reste renormalisé sur les facteurs
+observables et QCI est plafonné : 79 pour un facteur manquant, 69 pour deux facteurs manquants, 59
+pour trois facteurs manquants ou plus. Ce comportement correspond à `QCI_VERSION = "1.0.1"` et ne
+remonte jamais un QCI déjà faible.
+
 ### 3.3 Sortie API Cible
 
 ```json
