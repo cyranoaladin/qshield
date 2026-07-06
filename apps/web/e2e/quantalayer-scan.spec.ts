@@ -74,12 +74,69 @@ test("waitlist flow submits explicit consent", async ({ page }) => {
   await expect(page.getByText("Inscription enregistrée.")).toBeVisible();
 });
 
+test("stats page renders aggregate metrics without raw addresses", async ({ page }) => {
+  await page.route("**/api/v1/stats", async (route) => {
+    await route.fulfill({
+      body: JSON.stringify({
+        averageQci: 81,
+        averageQes: 58,
+        gradeDistribution: {
+          A: 1,
+          B: 2,
+          C: 3,
+          D: 0,
+          E: 0,
+          "N/A": 1,
+        },
+        lastScanTimestamp: "2026-07-05T12:00:00.000Z",
+        totalEstimatedMigrationExposureValueUsd: 125000,
+        totalScans: 7,
+      }),
+      contentType: "application/json",
+      status: 200,
+    });
+  });
+
+  await page.goto("/stats");
+
+  await expect(page.getByText("Dashboard agrégé")).toBeVisible();
+  await expect(page.getByText("Scans totaux")).toBeVisible();
+  await expect(page.getByText("125\u202f000\u00a0$US")).toBeVisible();
+  await expect(page.locator("body")).not.toContainText(scanAddress);
+});
+
+test("OG score route returns a PNG image", async ({ page }) => {
+  const response = await page.request.get(
+    `/api/og/score?address=${scanAddress}&qes=69&qci=82&grade=B`,
+  );
+
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["content-type"]).toContain("image/png");
+});
+
 test("rendered public pages avoid machine-listed banned claims", async ({ page }) => {
   const bannedClaims = extractBannedClaims(
     readFileSync(new URL("../../../docs/claims_matrix.md", import.meta.url), "utf8"),
   );
 
-  for (const path of ["/", "/waitlist", "/learn/why-solana"]) {
+  for (const path of ["/", "/waitlist", "/learn/why-solana", "/stats"]) {
+    if (path === "/stats") {
+      await page.route("**/api/v1/stats", async (route) => {
+        await route.fulfill({
+          body: JSON.stringify({
+            averageQci: null,
+            averageQes: null,
+            gradeDistribution: {},
+            lastScanTimestamp: null,
+            totalEstimatedMigrationExposureValueUsd: 0,
+            totalScans: 0,
+          }),
+          contentType: "application/json",
+          status: 200,
+        });
+      });
+    }
+
     await page.goto(path);
     const pageText = (await page.locator("body").innerText()).toLowerCase();
 

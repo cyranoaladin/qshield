@@ -44,6 +44,9 @@ export default function HomePage() {
           <Button asChild variant="secondary">
             <a href="/waitlist">{messages.waitlist.title}</a>
           </Button>
+          <Button asChild variant="secondary">
+            <a href="/stats">{messages.home.statsAction}</a>
+          </Button>
         </div>
       </section>
     </main>

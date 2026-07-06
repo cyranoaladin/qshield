@@ -24,6 +24,15 @@ export type WaitlistApiResponse = {
   readonly status: "ok";
 };
 
+export type StatsApiResponse = {
+  readonly averageQci: number | null;
+  readonly averageQes: number | null;
+  readonly gradeDistribution: Record<string, number>;
+  readonly lastScanTimestamp: string | null;
+  readonly totalEstimatedMigrationExposureValueUsd: number;
+  readonly totalScans: number;
+};
+
 export type ProblemResponse = {
   readonly code: string;
   readonly detail?: string;
@@ -50,6 +59,12 @@ export async function requestWaitlist(input: {
   return requestJson<WaitlistApiResponse>("/api/v1/waitlist", {
     body: JSON.stringify(input),
     method: "POST",
+  });
+}
+
+export async function requestStats(): Promise<StatsApiResponse> {
+  return requestJson<StatsApiResponse>("/api/v1/stats", {
+    method: "GET",
   });
 }
 

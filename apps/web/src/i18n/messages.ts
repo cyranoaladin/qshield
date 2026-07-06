@@ -80,6 +80,17 @@ export const messages = {
         "This page scans public Solana data and returns QES/QCI with confidence-aware display rules.",
       title: "Scan result",
     },
+    stats: {
+      averageQci: "Average QCI",
+      averageQes: "Average QES",
+      description:
+        "Aggregate QuantaLayer Scan metrics. No raw addresses or public rankings are shown.",
+      gradeDistribution: "Grade distribution",
+      lastScanTimestamp: "Last scan",
+      title: "Aggregate dashboard",
+      totalEstimatedMigrationExposureValueUsd: "Total observable asset value",
+      totalScans: "Total scans",
+    },
     waitlist: {
       consent: "I agree to be contacted about QuantaLayer updates.",
       description: "Join the private beta list for QuantaLayer Scan.",
@@ -173,6 +184,17 @@ export const messages = {
       description:
         "Cette page analyse des données publiques Solana et retourne QES/QCI avec règles d'affichage liées à la confiance.",
       title: "Résultat du scan",
+    },
+    stats: {
+      averageQci: "QCI moyen",
+      averageQes: "QES moyen",
+      description:
+        "Métriques agrégées QuantaLayer Scan. Aucune adresse brute ni classement public n'est affiché.",
+      gradeDistribution: "Distribution des grades",
+      lastScanTimestamp: "Dernier scan",
+      title: "Dashboard agrégé",
+      totalEstimatedMigrationExposureValueUsd: "Valeur observable totale",
+      totalScans: "Scans totaux",
     },
     waitlist: {
       consent: "J'accepte d'être contacté au sujet des mises à jour QuantaLayer.",
