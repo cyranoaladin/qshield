@@ -135,6 +135,7 @@ STAGING_URL=https://staging.example.com SMOKE_STAGING_WRITE=true pnpm smoke:stag
 
 ## Staging Status
 
+- Staging release candidate: ready for deployment and live staging validation.
 - Staging deploy: ready as a release-candidate package for deployment and live validation.
-- Public beta: not ready until the live smoke, load, monitoring and operational gates above are
-  completed.
+- Public beta: blocked until the live smoke, load, monitoring and operational gates above are
+  completed and reviewed.

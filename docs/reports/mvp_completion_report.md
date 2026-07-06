@@ -146,6 +146,6 @@ Web:
 
 ## Final Status
 
-MVP implementation is staging-ready after local non-live gates. Public beta readiness still requires
-a live PostgreSQL migration, Redis/API/provider smoke test, k6 run, Sentry project setup and
-operational review.
+MVP implementation is a staging release candidate after local non-live gates. Public beta remains
+blocked until live PostgreSQL migration, Redis/API/provider smoke tests, k6 run, Sentry project
+setup and operational review are complete.

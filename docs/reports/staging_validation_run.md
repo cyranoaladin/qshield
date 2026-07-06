@@ -1,8 +1,8 @@
 # QuantaLayer Staging Validation Run
 
-Date: 2026-07-06T07:39:49Z
+Date: 2026-07-06T12:24:55Z
 Branch: `rc/staging-validation-pack`
-Commit: `1fde19c680616bc6dd354779bafb360bdab42c89`
+Commit: `6cb104f48163ab1d8be131a4e3f44293c8c1271c`
 
 ## Tool Versions
 
@@ -13,8 +13,8 @@ Commit: `1fde19c680616bc6dd354779bafb360bdab42c89`
 
 | Variable               | Status  |
 | ---------------------- | ------- |
-| `DATABASE_URL`         | present |
-| `REDIS_URL`            | present |
+| `DATABASE_URL`         | missing |
+| `REDIS_URL`            | missing |
 | `HELIUS_API_KEY`       | missing |
 | `HELIUS_RPC_URL`       | missing |
 | `SOLANA_CLUSTER`       | missing |
@@ -46,3 +46,9 @@ Commit: `1fde19c680616bc6dd354779bafb360bdab42c89`
 ## Final Status
 
 PASS_WITH_SKIPS
+
+## Traceability Note
+
+Validation commands were run on commit `6cb104f48163ab1d8be131a4e3f44293c8c1271c`.
+This report is committed in a later documentation-only commit.
+No application source files were changed after validation.
