@@ -8,13 +8,14 @@ type QesGaugeProps = {
 
 export function QesGauge({ grade, gradeDisplayed, hiddenCopy, label, qes }: QesGaugeProps) {
   const value = qes ?? 0;
+  const displayedGrade = gradeDisplayed ? grade : grade === "N/A" ? "N/A" : "-";
 
   return (
     <div className="rounded-lg border bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between gap-4">
         <span className="text-sm font-medium text-foreground/65">{label}</span>
         <span className="rounded-full border px-3 py-1 text-sm font-semibold">
-          {gradeDisplayed ? grade : "-"}
+          {displayedGrade}
         </span>
       </div>
       <div className="mt-5 flex items-end gap-3">
