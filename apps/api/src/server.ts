@@ -13,7 +13,11 @@ import { MemoryCache, validateSolanaAddress, type CacheAdapter } from "@quantala
 
 import { sha256Hex } from "./hash.js";
 import { MemoryRateLimiter, type RateLimiter } from "./rate-limit.js";
-import { MemoryScanAggregateStore, type ScanAggregateStore } from "./storage.js";
+import {
+  MemoryScanAggregateStore,
+  type ScanAggregateStore,
+  type WaitlistStore,
+} from "./storage.js";
 
 type ScanProvider = {
   readonly scanAddress: (address: string) => Promise<{
@@ -45,10 +49,18 @@ export type BuildServerOptions = {
   readonly scanCacheTtlSeconds?: number;
   readonly scanProvider?: ScanProvider;
   readonly scanStore?: ScanAggregateStore;
+  readonly waitlistStore?: WaitlistStore;
 };
 
 const scanRequestSchema = z.object({
   address: z.string().trim().min(1).max(64),
+});
+
+const waitlistRequestSchema = z.object({
+  consent: z.literal(true),
+  email: z.string().trim().email().max(320).transform(normalizeEmail),
+  source: z.string().trim().min(1).max(80).optional(),
+  wallet: z.string().trim().min(1).max(64).optional(),
 });
 
 const defaultScanProvider: ScanProvider = {
@@ -70,7 +82,9 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
     });
   const scanCacheTtlSeconds = options.scanCacheTtlSeconds ?? 3_600;
   const scanProvider = options.scanProvider ?? defaultScanProvider;
-  const scanStore = options.scanStore ?? new MemoryScanAggregateStore();
+  const memoryStore = new MemoryScanAggregateStore();
+  const scanStore = options.scanStore ?? memoryStore;
+  const waitlistStore = options.waitlistStore ?? memoryStore;
 
   void server.register(cors, {
     origin: options.corsOrigin ?? false,
@@ -182,6 +196,47 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
 
   server.get("/api/v1/stats", async () => scanStore.getStats());
 
+  server.post("/api/v1/waitlist", async (request) => {
+    const parsed = waitlistRequestSchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      throw new ValidationError("Invalid waitlist request body", {
+        detail: parsed.error.message,
+      });
+    }
+
+    if (parsed.data.wallet !== undefined) {
+      const walletValidation = validateSolanaAddress(parsed.data.wallet);
+
+      if (!walletValidation.isValid) {
+        throw new ValidationError("Invalid optional wallet address", {
+          detail: "Wallet must be a valid Solana address when provided",
+        });
+      }
+    }
+
+    const result = await waitlistStore.recordWaitlistEntry({
+      consent: true,
+      email: parsed.data.email,
+      ...(parsed.data.source === undefined ? {} : { source: parsed.data.source }),
+      ...(parsed.data.wallet === undefined ? {} : { wallet: parsed.data.wallet }),
+    });
+
+    request.log.info(
+      {
+        duplicate: result.duplicate,
+        emailHash: sha256Hex(parsed.data.email),
+      },
+      "waitlist registration recorded",
+    );
+
+    return {
+      duplicate: result.duplicate,
+      message: "Waitlist registration recorded.",
+      status: "ok",
+    };
+  });
+
   return server;
 }
 
@@ -193,4 +248,8 @@ function withCache(result: QesResult, hit: boolean, ttlSeconds: number): ScanRes
       ttlSeconds,
     },
   };
+}
+
+function normalizeEmail(email: string): string {
+  return email.toLowerCase();
 }

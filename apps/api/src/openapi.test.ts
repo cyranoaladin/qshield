@@ -13,5 +13,6 @@ describe("OpenAPI document", () => {
     expect(spec.paths).toHaveProperty("/healthz");
     expect(spec.paths).toHaveProperty("/api/v1/scan");
     expect(spec.paths).toHaveProperty("/api/v1/stats");
+    expect(spec.paths).toHaveProperty("/api/v1/waitlist");
   });
 });

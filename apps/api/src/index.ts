@@ -1,5 +1,6 @@
 import { config as loadDotenv } from "dotenv";
 import { Redis } from "ioredis";
+import { PrismaClient } from "@prisma/client";
 
 import { formatEnvWarning } from "@quantalayer/shared";
 import { HeliusClient, JupiterPriceClient, RedisCache, scanAddress } from "@quantalayer/solana";
@@ -7,7 +8,7 @@ import { HeliusClient, JupiterPriceClient, RedisCache, scanAddress } from "@quan
 import { readApiConfig } from "./config.js";
 import { MemoryRateLimiter } from "./rate-limit.js";
 import { buildServer } from "./server.js";
-import { MemoryScanAggregateStore } from "./storage.js";
+import { PrismaMvpStore } from "./storage.js";
 
 loadDotenv({ quiet: true });
 
@@ -20,6 +21,7 @@ const redis = new Redis(config.env.redisUrl, {
   lazyConnect: false,
   maxRetriesPerRequest: 2,
 });
+const prisma = new PrismaClient();
 const helius = new HeliusClient({
   apiKey: config.env.heliusApiKey ?? "",
   rpcUrl: config.env.heliusRpcUrl,
@@ -46,10 +48,12 @@ const server = buildServer({
         jupiter,
       }),
   },
-  scanStore: new MemoryScanAggregateStore(),
+  scanStore: new PrismaMvpStore(prisma),
+  waitlistStore: new PrismaMvpStore(prisma),
 });
 
 server.addHook("onClose", async () => {
+  await prisma.$disconnect();
   redis.disconnect();
 });
 

@@ -9,21 +9,25 @@
     "pnpm": ">=10.0.0"
   },
   "scripts": {
+    "db:generate": "prisma generate",
+    "db:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://quantalayer:quantalayer@localhost:5432/quantalayer} prisma validate",
     "dev": "pnpm -r --parallel --filter @quantalayer/web --filter @quantalayer/api dev",
     "lint": "prettier --check . && eslint .",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm db:generate && pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:coverage": "pnpm -r test:coverage",
-    "build": "pnpm -r build"
+    "build": "pnpm db:generate && pnpm -r build"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
     "@next/eslint-plugin-next": "15.5.20",
+    "@prisma/client": "6.19.0",
     "@vitest/coverage-v8": "4.1.9",
     "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.7.0",
     "prettier": "3.9.4",
+    "prisma": "^6.19.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.62.1",
     "vitest": "4.1.9"

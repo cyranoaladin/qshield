@@ -88,6 +88,37 @@
           }
         }
       }
+    },
+    "/api/v1/waitlist": {
+      "post": {
+        "summary": "Join the QuantaLayer waitlist",
+        "description": "Records an opt-in waitlist entry. Explicit consent is required and duplicate emails are idempotent.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaitlistRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Waitlist entry recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -252,6 +283,46 @@
             "items": {
               "type": "string"
             }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WaitlistRequest": {
+        "type": "object",
+        "required": ["consent", "email"],
+        "properties": {
+          "consent": {
+            "type": "boolean",
+            "const": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "wallet": {
+            "type": "string",
+            "description": "Optional Solana address voluntarily provided by the user"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WaitlistResponse": {
+        "type": "object",
+        "required": ["duplicate", "message", "status"],
+        "properties": {
+          "duplicate": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "const": "ok"
           }
         },
         "additionalProperties": false

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@prisma/client": "^6.19.0",
     "@quantalayer/scoring": "workspace:*",
     "@quantalayer/shared": "workspace:*",
     "@quantalayer/solana": "workspace:*",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "26.1.0",
+    "prisma": "6.19.0",
     "tsx": "4.23.0"
   }
 }

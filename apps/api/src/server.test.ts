@@ -178,6 +178,124 @@ describe("buildServer", () => {
 
     await server.close();
   });
+
+  it("records waitlist entries with explicit consent", async () => {
+    const context = testContext();
+    const server = buildServer(context.options);
+
+    const response = await server.inject({
+      method: "POST",
+      payload: {
+        consent: true,
+        email: "Research@QuantaLayer.App",
+        source: "mvp-test",
+        wallet: "11111111111111111111111111111111",
+      },
+      url: "/api/v1/waitlist",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      duplicate: false,
+      message: "Waitlist registration recorded.",
+      status: "ok",
+    });
+    expect(context.store.waitlistRows()).toEqual([
+      {
+        consent: true,
+        email: "research@quantalayer.app",
+        source: "mvp-test",
+        wallet: "11111111111111111111111111111111",
+      },
+    ]);
+
+    await server.close();
+  });
+
+  it("rejects invalid waitlist emails", async () => {
+    const context = testContext();
+    const server = buildServer(context.options);
+
+    const response = await server.inject({
+      method: "POST",
+      payload: {
+        consent: true,
+        email: "not-an-email",
+      },
+      url: "/api/v1/waitlist",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({
+      code: "VALIDATION_ERROR",
+      status: 400,
+    });
+    expect(context.store.waitlistRows()).toHaveLength(0);
+
+    await server.close();
+  });
+
+  it("requires explicit waitlist consent", async () => {
+    const context = testContext();
+    const server = buildServer(context.options);
+
+    const response = await server.inject({
+      method: "POST",
+      payload: {
+        consent: false,
+        email: "research@quantalayer.app",
+      },
+      url: "/api/v1/waitlist",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(context.store.waitlistRows()).toHaveLength(0);
+
+    await server.close();
+  });
+
+  it("deduplicates waitlist entries idempotently", async () => {
+    const context = testContext();
+    const server = buildServer(context.options);
+    const request = {
+      method: "POST" as const,
+      payload: {
+        consent: true,
+        email: "research@quantalayer.app",
+      },
+      url: "/api/v1/waitlist",
+    };
+
+    expect((await server.inject(request)).json()).toMatchObject({
+      duplicate: false,
+    });
+    expect((await server.inject(request)).json()).toMatchObject({
+      duplicate: true,
+    });
+    expect(context.store.waitlistRows()).toHaveLength(1);
+
+    await server.close();
+  });
+
+  it("rejects invalid optional waitlist wallets", async () => {
+    const context = testContext();
+    const server = buildServer(context.options);
+
+    const response = await server.inject({
+      method: "POST",
+      payload: {
+        consent: true,
+        email: "research@quantalayer.app",
+        wallet: "not-base58-0000",
+      },
+      url: "/api/v1/waitlist",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(context.store.waitlistRows()).toHaveLength(0);
+
+    await server.close();
+  });
 });
 
 function testContext(
@@ -211,6 +329,7 @@ function testContext(
       scanCacheTtlSeconds: 300,
       scanProvider: { scanAddress },
       scanStore: store,
+      waitlistStore: store,
     },
     store,
   };
