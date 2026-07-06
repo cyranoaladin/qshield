@@ -1,7 +1,7 @@
 # QuantaLayer Scan Staging Deployment
 
-Status: staging release-candidate runbook. Public beta remains blocked until live validation gates
-are complete.
+Status: staging release-candidate runbook. Staging release candidate is ready for deployment and
+live validation. Public beta remains blocked until live validation gates are complete.
 
 ## Target Architecture
 
@@ -141,3 +141,5 @@ The script writes `docs/reports/staging_validation_run.md` and reports `PASS`,
 - k6 10/50 concurrent-user report.
 - Sentry monitored in staging.
 - Operational review of abuse/rate-limit thresholds.
+
+Public beta remains blocked until these live validation gates pass and are reviewed.
