@@ -34,20 +34,53 @@ pnpm audit --prod
 
 7. Start API and web processes.
 
+## Local Staging Infrastructure
+
+Start local PostgreSQL and Redis:
+
+```bash
+pnpm staging:local:up
+```
+
+The local Compose file maps PostgreSQL to `localhost:55432` and Redis to `localhost:56379`.
+
+Apply migrations and validate the schema:
+
+```bash
+DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm staging:local:migrate
+DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm db:validate
+```
+
+Stop local services:
+
+```bash
+pnpm staging:local:down
+```
+
+If Docker is unavailable, mark this gate as skipped in
+`docs/reports/staging_validation_run.md`; do not claim migration validation.
+
 ## Smoke Tests
 
 Smoke tests are manual gates and are not run in CI.
 
 ```bash
-HELIUS_API_KEY=... pnpm smoke:providers
+HELIUS_API_KEY=... SMOKE_SOLANA_ADDRESS=... pnpm smoke:providers
 API_URL=http://localhost:3001 pnpm smoke:api
 STAGING_URL=https://staging.example.com pnpm smoke:staging
 ```
 
 `smoke:providers` checks Helius, Jupiter and one read-only scan without database writes.
-`smoke:api` checks local `/healthz`, `/api/v1/stats`, `/api/v1/scan` and `/api/v1/waitlist`.
+`smoke:api` checks local `/healthz`, `/api/v1/stats` and `/api/v1/scan`. It only writes a
+waitlist row when `SMOKE_API_WRITE=true`.
 `smoke:staging` checks health, stats and one scan against staging. It skips waitlist writes unless
 `SMOKE_STAGING_WRITE=true` is set.
+
+The release-candidate validation wrapper is:
+
+```bash
+bash scripts/validate-staging-readiness.sh
+```
 
 ## Rollback
 

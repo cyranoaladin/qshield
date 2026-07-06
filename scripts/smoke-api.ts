@@ -2,18 +2,21 @@ import { config as loadDotenv } from "dotenv";
 
 loadDotenv({ quiet: true });
 
-const baseUrl = withoutTrailingSlash(process.env.API_URL ?? "http://localhost:3001");
+const baseUrl = withoutTrailingSlash(requiredEnv("API_URL"));
 const address = process.env.SMOKE_SOLANA_ADDRESS ?? "11111111111111111111111111111111";
 const waitlistEmail = process.env.SMOKE_WAITLIST_EMAIL ?? "smoke+local@quantalayer.app";
+const allowWrite = process.env.SMOKE_API_WRITE === "true";
 
 const health = await requestJson("GET", "/healthz");
 const statsBefore = await requestJson("GET", "/api/v1/stats");
 const scan = await requestJson("POST", "/api/v1/scan", { address });
-const waitlist = await requestJson("POST", "/api/v1/waitlist", {
-  consent: true,
-  email: waitlistEmail,
-  source: "smoke-api",
-});
+const waitlist = allowWrite
+  ? await requestJson("POST", "/api/v1/waitlist", {
+      consent: true,
+      email: waitlistEmail,
+      source: "smoke-api",
+    })
+  : { skipped: "Set SMOKE_API_WRITE=true to exercise waitlist locally." };
 
 console.log(
   JSON.stringify(
@@ -77,4 +80,14 @@ function truncateAddress(value: string): string {
 
 function withoutTrailingSlash(value: string): string {
   return value.replace(/\/$/, "");
+}
+
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+
+  if (value === undefined || value.trim() === "") {
+    throw new Error(`${name} is required`);
+  }
+
+  return value;
 }
