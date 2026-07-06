@@ -1,7 +1,7 @@
 # QuantaLayer Scan MVP Completion Report
 
 Date: 2026-07-06
-Branch: `hardening/staging-readiness`
+Branch: `rc/staging-validation-pack`
 
 ## Lots Completed
 
@@ -29,6 +29,17 @@ Branch: `hardening/staging-readiness`
 - Manual non-CI smoke scripts were added for provider, local API and staging checks.
 - Public beta remains blocked until live provider smoke, Redis/DB staging validation, k6 run and
   monitoring review are complete.
+
+## Staging RC Addendum
+
+- Added local PostgreSQL and Redis `docker-compose.yml`.
+- Added `.env.local.example` and `.env.staging.example` templates with no real secrets.
+- Added `scripts/validate-staging-readiness.sh`, which writes
+  `docs/reports/staging_validation_run.md`.
+- Hardened smoke scripts so provider smoke requires an explicit test address and API smoke does not
+  write waitlist rows unless explicitly enabled.
+- Upgraded `RedisRateLimiter` to use a Lua `EVAL` operation for atomic INCR/EXPIRE behavior.
+- Added `docs/deployment_staging.md` and `docs/reports/pr_merge_checklist.md`.
 
 ## Key Files Created Or Updated
 
@@ -63,6 +74,7 @@ Branch: `hardening/staging-readiness`
 - `@sentry/node`: optional API error monitoring when `SENTRY_DSN` is configured.
 - `tsx`: root-level execution of manual smoke scripts.
 - `dotenv`: load `.env` for root-level manual smoke scripts.
+- `@quantalayer/scoring`, `@quantalayer/solana`: root workspace dependencies for smoke scripts.
 
 Overrides:
 

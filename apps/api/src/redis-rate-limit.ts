@@ -4,8 +4,7 @@ import { sha256Hex } from "./hash.js";
 import type { RateLimiter } from "./rate-limit.js";
 
 type RedisLike = {
-  readonly expire: (key: string, seconds: number) => Promise<number>;
-  readonly incr: (key: string) => Promise<number>;
+  readonly eval: (script: string, keyCount: number, ...args: string[]) => Promise<unknown>;
 };
 
 type RedisRateLimiterOptions = {
@@ -31,11 +30,9 @@ export class RedisRateLimiter implements RateLimiter {
     const redisKey = `${this.keyPrefix}:${sha256Hex(key)}`;
 
     try {
-      const count = await this.redis.incr(redisKey);
-
-      if (count === 1) {
-        await this.redis.expire(redisKey, this.windowSeconds);
-      }
+      const count = Number(
+        await this.redis.eval(RATE_LIMIT_LUA_SCRIPT, 1, redisKey, String(this.windowSeconds)),
+      );
 
       if (count > this.limit) {
         throw new RateLimitError("Scan rate limit exceeded", {
@@ -53,3 +50,11 @@ export class RedisRateLimiter implements RateLimiter {
     }
   }
 }
+
+const RATE_LIMIT_LUA_SCRIPT = `
+local current = redis.call("INCR", KEYS[1])
+if current == 1 then
+  redis.call("EXPIRE", KEYS[1], ARGV[1])
+end
+return current
+`;

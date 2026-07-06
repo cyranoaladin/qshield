@@ -1,7 +1,7 @@
 # QuantaLayer Scan Staging Readiness Audit
 
 Date: 2026-07-06
-Branch: `hardening/staging-readiness`
+Branch: `rc/staging-validation-pack`
 
 ## Scope
 
@@ -18,8 +18,9 @@ PDF and does not implement QuantaLayer Vault, QuantaLayer Notary or Authority Ex
 | Helius             | implemented, live smoke pending | Missing `HELIUS_API_KEY` fails before client construction or network access.           |
 | Jupiter            | implemented, live smoke pending | Price queries remain batched through the existing data layer.                          |
 | Sentry             | optional, deployment pending    | Runtime initializes Sentry only when `SENTRY_DSN` is configured.                       |
+| Local Docker       | pass locally                    | PostgreSQL and Redis started healthy with Docker Compose.                              |
 | k6                 | not run locally                 | `k6` binary is not installed in this environment.                                      |
-| Smoke tests        | not run locally                 | `HELIUS_API_KEY`, `API_URL` and `STAGING_URL` were not present.                        |
+| Smoke tests        | not run locally                 | Smoke scripts now skip or fail explicitly unless required variables are present.       |
 
 ## Correctives
 
@@ -39,6 +40,8 @@ PDF and does not implement QuantaLayer Vault, QuantaLayer Notary or Authority Ex
 - Stake account discovery queries both staker offset `12` and withdrawer offset `44`, then
   deduplicates by stake account pubkey.
 - Manual smoke scripts were added for providers, local API and staging.
+- `smoke:providers` requires an explicit `SMOKE_SOLANA_ADDRESS`.
+- `smoke:api` does not write waitlist rows unless `SMOKE_API_WRITE=true`.
 
 ### P2
 
@@ -46,6 +49,22 @@ PDF and does not implement QuantaLayer Vault, QuantaLayer Notary or Authority Ex
   but before public beta it should move to Prisma aggregate/groupBy queries or a materialized
   aggregate table.
 - Security docs now state that raw scanned addresses and raw waitlist emails must not be logged.
+
+## Staging RC Gates
+
+Provider/API smokes are required to validate a deployed staging environment. They are skipped in
+this local RC run because live secrets and staging URLs are not present.
+
+| Gate                           | Required for staging deploy | Required for public beta | Current status |
+| ------------------------------ | --------------------------: | -----------------------: | -------------- |
+| Local unit/type/build/e2e      |                         yes |                      yes | pass           |
+| PostgreSQL migration on Docker |                         yes |                      yes | pass           |
+| Redis Docker cache/rate-limit  |                         yes |                      yes | pass           |
+| Provider smoke                 |                         yes |                      yes | skipped        |
+| API smoke                      |                         yes |                      yes | skipped        |
+| Staging smoke                  |                          no |                      yes | skipped        |
+| k6 10/50                       |                          no |                      yes | skipped        |
+| Sentry                         |                          no |                      yes | skipped        |
 
 ## Required Environment Variables
 
@@ -66,13 +85,14 @@ PDF and does not implement QuantaLayer Vault, QuantaLayer Notary or Authority Ex
 ## Smoke Commands
 
 ```bash
-HELIUS_API_KEY=... pnpm smoke:providers
+HELIUS_API_KEY=... SMOKE_SOLANA_ADDRESS=... pnpm smoke:providers
 API_URL=http://localhost:3001 pnpm smoke:api
 STAGING_URL=https://staging.example.com pnpm smoke:staging
 STAGING_URL=https://staging.example.com SMOKE_STAGING_WRITE=true pnpm smoke:staging
 ```
 
-`smoke:providers` does not write to the database. `smoke:staging` skips waitlist writes unless
+`smoke:providers` does not write to the database. `smoke:api` skips waitlist writes unless
+`SMOKE_API_WRITE=true` is set. `smoke:staging` skips waitlist writes unless
 `SMOKE_STAGING_WRITE=true` is set.
 
 ## Public Beta Blockers
@@ -95,6 +115,10 @@ STAGING_URL=https://staging.example.com SMOKE_STAGING_WRITE=true pnpm smoke:stag
 - `pnpm --filter @quantalayer/web test:e2e`: pass, 6 tests.
 - `pnpm db:validate`: pass.
 - `pnpm audit --prod`: pass, no known vulnerabilities.
+- `docker compose up -d postgres redis`: pass with local ports `55432` and `56379`.
+- `DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm exec prisma migrate deploy`: pass.
+- `DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm db:validate`: pass.
+- `DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer REDIS_URL=redis://localhost:56379 bash scripts/validate-staging-readiness.sh`: pass with skips.
 - `pnpm loadtest:scan`: not run because `k6` is not installed.
 - `pnpm smoke:providers`: not run because `HELIUS_API_KEY` is missing.
 - `pnpm smoke:api`: not run because no local API URL was configured/running for this pass.
@@ -111,5 +135,6 @@ STAGING_URL=https://staging.example.com SMOKE_STAGING_WRITE=true pnpm smoke:stag
 
 ## Staging Status
 
-MVP is staging-ready after local non-live gates pass. Public beta is not ready until the live smoke,
-load, monitoring and operational gates above are completed.
+- Staging deploy: ready as a release-candidate package for deployment and live validation.
+- Public beta: not ready until the live smoke, load, monitoring and operational gates above are
+  completed.

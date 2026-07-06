@@ -22,6 +22,12 @@ importers:
       '@prisma/client':
         specifier: 6.19.0
         version: 6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3)
+      '@quantalayer/scoring':
+        specifier: workspace:*
+        version: link:packages/scoring
+      '@quantalayer/solana':
+        specifier: workspace:*
+        version: link:packages/solana
       '@vitest/coverage-v8':
         specifier: 4.1.9
         version: 4.1.9(vitest@4.1.9)

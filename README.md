@@ -28,6 +28,34 @@ pnpm dev               # web :3000 · api :3001
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
+## Validation staging locale
+
+PostgreSQL et Redis peuvent être lancés localement sans secrets réels :
+
+```bash
+pnpm staging:local:up
+DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm staging:local:migrate
+DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm db:validate
+```
+
+Le Compose local expose PostgreSQL sur `localhost:55432` et Redis sur `localhost:56379` pour éviter
+les conflits avec des services déjà installés sur les ports standards.
+
+La passe RC complète est scriptée :
+
+```bash
+bash scripts/validate-staging-readiness.sh
+```
+
+Le script écrit `docs/reports/staging_validation_run.md`. Les smoke tests live sont sautés tant que
+les variables nécessaires ne sont pas fournies.
+
+Arrêt local :
+
+```bash
+pnpm staging:local:down
+```
+
 ## Principes non négociables
 
 1. Lecture seule en phase 1 : aucune clé privée ne transite par le système.

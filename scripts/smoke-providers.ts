@@ -5,7 +5,10 @@ import { HeliusClient, JupiterPriceClient, scanAddress } from "@quantalayer/sola
 
 loadDotenv({ quiet: true });
 
-const address = process.env.SMOKE_SOLANA_ADDRESS ?? "11111111111111111111111111111111";
+const address = requiredEnv(
+  "SMOKE_SOLANA_ADDRESS",
+  "Provide a non-sensitive public Solana test address before running a live provider smoke test.",
+);
 const heliusApiKey = requiredEnv("HELIUS_API_KEY");
 const heliusRpcUrl = urlEnv("HELIUS_RPC_URL", "https://mainnet.helius-rpc.com");
 const jupiterPriceUrl = urlEnv("JUPITER_PRICE_URL", "https://api.jup.ag/price/v2");
@@ -55,11 +58,11 @@ function truncateAddress(value: string): string {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
-function requiredEnv(name: string): string {
+function requiredEnv(name: string, help?: string): string {
   const value = process.env[name];
 
   if (value === undefined || value.trim() === "") {
-    throw new Error(`${name} is required`);
+    throw new Error(help === undefined ? `${name} is required` : `${name} is required. ${help}`);
   }
 
   return value;

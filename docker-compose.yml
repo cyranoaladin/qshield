@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: quantalayer-postgres
+    environment:
+      POSTGRES_DB: quantalayer
+      POSTGRES_PASSWORD: quantalayer
+      POSTGRES_USER: quantalayer
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quantalayer -d quantalayer"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    ports:
+      - "55432:5432"
+    volumes:
+      - quantalayer-postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: quantalayer-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    ports:
+      - "56379:6379"
+    volumes:
+      - quantalayer-redis-data:/data
+
+volumes:
+  quantalayer-postgres-data:
+  quantalayer-redis-data:
