@@ -15,10 +15,13 @@ type ScanResultClientProps = {
     readonly commonError: string;
     readonly results: {
       readonly breakdownLabels: Record<string, string>;
+      readonly breakdownEmpty: string;
       readonly breakdownTitle: string;
       readonly cacheHit: string;
       readonly cacheMiss: string;
       readonly gradeHidden: string;
+      readonly gradeInsufficientData: string;
+      readonly gradeNotApplicable: string;
       readonly loading: string;
       readonly qci: string;
       readonly qes: string;
@@ -96,7 +99,7 @@ export function ScanResultClient({ address, copy }: ScanResultClientProps) {
         <QesGauge
           grade={result.grade}
           gradeDisplayed={result.gradeDisplayed}
-          hiddenCopy={copy.results.gradeHidden}
+          hiddenCopy={gradeHiddenCopy(result.status, copy.results)}
           label={copy.results.qes}
           qes={result.qes}
         />
@@ -110,6 +113,7 @@ export function ScanResultClient({ address, copy }: ScanResultClientProps) {
       </div>
       <ScoreBreakdown
         breakdown={result.breakdown}
+        emptyLabel={copy.results.breakdownEmpty}
         labels={copy.results.breakdownLabels}
         title={copy.results.breakdownTitle}
       />
@@ -136,4 +140,19 @@ function formatUsd(value: number): string {
     maximumFractionDigits: 0,
     style: "currency",
   }).format(value);
+}
+
+function gradeHiddenCopy(
+  status: ScanApiResponse["status"],
+  copy: ScanResultClientProps["copy"]["results"],
+): string {
+  if (status === "not_applicable") {
+    return copy.gradeNotApplicable;
+  }
+
+  if (status === "insufficient_data") {
+    return copy.gradeInsufficientData;
+  }
+
+  return copy.gradeHidden;
 }
