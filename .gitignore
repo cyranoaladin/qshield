@@ -2,6 +2,11 @@ node_modules/
 dist/
 .next/
 coverage/
+build/
+test-results/
+playwright-report/
+apps/web/test-results/
+apps/web/playwright-report/
 .turbo/
 
 .env

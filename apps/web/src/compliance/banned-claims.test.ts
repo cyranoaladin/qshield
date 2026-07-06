@@ -41,6 +41,24 @@ describe("banned claim compliance", () => {
 
     expect(violations).toEqual([]);
   });
+
+  it("keeps exact banned claims out of web source and i18n messages", () => {
+    const claimsMatrix = readFileSync(claimsMatrixPath, "utf8");
+    const bannedClaims = extractBannedClaims(claimsMatrix);
+    const sourceFiles = listSourceFiles(join(repoRoot, "apps/web/src")).filter(
+      (filePath) => filePath !== import.meta.filename,
+    );
+
+    const violations = sourceFiles.flatMap((filePath) => {
+      const content = readFileSync(filePath, "utf8");
+
+      return bannedClaims
+        .filter((claim) => containsExactClaim(content, claim))
+        .map((claim) => `${relative(repoRoot, filePath)} contains ${claim}`);
+    });
+
+    expect(violations).toEqual([]);
+  });
 });
 
 function extractBannedClaims(markdown: string): string[] {
@@ -71,6 +89,19 @@ function listMarkdownFiles(directory: string): string[] {
     }
 
     return entry.endsWith(".md") ? [filePath] : [];
+  });
+}
+
+function listSourceFiles(directory: string): string[] {
+  return readdirSync(directory).flatMap((entry) => {
+    const filePath = join(directory, entry);
+    const stat = statSync(filePath);
+
+    if (stat.isDirectory()) {
+      return listSourceFiles(filePath);
+    }
+
+    return /\.(ts|tsx)$/u.test(entry) ? [filePath] : [];
   });
 }
 
