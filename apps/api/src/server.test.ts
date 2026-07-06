@@ -26,6 +26,21 @@ describe("buildServer", () => {
     await server.close();
   });
 
+  it("sets baseline API security headers", async () => {
+    const server = buildServer();
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/healthz",
+    });
+
+    expect(response.headers["x-content-type-options"]).toBe("nosniff");
+    expect(response.headers["x-frame-options"]).toBe("DENY");
+    expect(response.headers["permissions-policy"]).toContain("camera=()");
+
+    await server.close();
+  });
+
   it("rejects invalid scan addresses with problem+json", async () => {
     const context = testContext();
     const server = buildServer(context.options);
