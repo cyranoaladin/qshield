@@ -38,6 +38,10 @@ QuantaLayer Scan accepts a public address and computes:
 
 If QCI is below 40, the product must not display an A/B/C/D/E grade.
 
+When concentration, observable age or recent activity cannot be observed, QES is renormalized over
+the remaining observable factors and QCI is capped. One missing factor caps QCI at 79, two at 69,
+and three or more at 59. This rule is versioned as `QCI_VERSION = "1.0.1"`.
+
 ## QuantaLayer Vault And Notary Context
 
 QuantaLayer Vault and QuantaLayer Notary are research and later-stage product tracks. They are not
@@ -51,7 +55,7 @@ The MVP is split into:
 
 - `packages/scoring`: pure QES/QCI computation with no I/O.
 - `packages/solana`: read-only Helius/Jupiter/stake data boundary with Zod validation.
-- `apps/api`: Fastify routes, cache, rate limits, persistence and problem JSON.
+- `apps/api`: Fastify routes, Redis cache, Redis-backed rate limits, persistence and problem JSON.
 - `apps/web`: Next.js UI, learn pages, waitlist, score display, stats and share images.
 
 ## Limitations

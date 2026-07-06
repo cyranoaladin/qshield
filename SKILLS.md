@@ -44,7 +44,7 @@ QES weighted factors:
 - Edge cases (must have unit tests): empty account → QES computed normally (low), never an error; off-curve address → `grade: "N/A"` + explanatory flag; QCI < 40 → no grade; RPC partial failure → error response, never a partial score (fail-closed).
 - Weights are constants in `packages/scoring/src/weights.ts`, exported with `QES_VERSION`. Any change = version bump + entry in `docs/CHANGELOG-QES.md`.
 
-`QCI_VERSION = "1.0.0"`. Output integer 0–100.
+`QCI_VERSION = "1.0.1"`. Output integer 0–100.
 
 | Dimension            | Weight | Method                              |
 | -------------------- | ------ | ----------------------------------- |
@@ -66,6 +66,11 @@ QCI display rules:
 | < 40  | no grade; insufficient data       |
 
 Token-account scoring must ignore or down-weight spam tokens, apply a minimum value threshold, distinguish active token accounts from received dust, and lower QCI when pollution prevents a reliable read.
+
+If QES factors are not observable, QES is renormalized over observable factors and QCI is capped:
+one missing factor caps QCI at 79, two missing factors cap QCI at 69, and three or more missing
+factors cap QCI at 59. These caps do not raise a low QCI; if the base QCI is below 40, grade
+display remains disabled.
 
 ## 4. Post-quantum cryptography (P2/P3 background)
 

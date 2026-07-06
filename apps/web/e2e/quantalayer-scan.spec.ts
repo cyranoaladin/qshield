@@ -165,7 +165,7 @@ function scanResponse(address: string) {
     grade: "B",
     gradeDisplayed: true,
     qci: 82,
-    qciVersion: "1.0.0",
+    qciVersion: "1.0.1",
     qes: 69,
     qesVersion: "1.1.0",
     recommendations: ["Prioritize authority inventory before migration planning."],

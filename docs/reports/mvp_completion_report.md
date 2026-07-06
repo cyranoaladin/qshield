@@ -1,7 +1,7 @@
 # QuantaLayer Scan MVP Completion Report
 
 Date: 2026-07-06
-Branch: `mvp/quantalayer-scan`
+Branch: `hardening/staging-readiness`
 
 ## Lots Completed
 
@@ -14,6 +14,21 @@ Branch: `mvp/quantalayer-scan`
 - LOT-08: web scan result, waitlist and learn pages with i18n and e2e tests.
 - LOT-09: OG score card route and aggregate stats dashboard.
 - LOT-10: security headers, optional Sentry, audit clean-up, k6 script and runbook.
+
+## Staging Hardening Addendum
+
+- Helius scan provider now fails closed before Helius client construction when `HELIUS_API_KEY` is
+  missing.
+- Runtime scan rate limiting is Redis-backed; memory rate limiting remains only for tests and
+  explicit local injection.
+- QCI behavior is versioned as `1.0.1` and caps confidence when QES factors are not observable.
+- Scan cache keys now include cache schema, Solana cluster, QES version, QCI version and address
+  hash.
+- Stake-account discovery covers staker and withdrawer authority filters and deduplicates by stake
+  account pubkey.
+- Manual non-CI smoke scripts were added for provider, local API and staging checks.
+- Public beta remains blocked until live provider smoke, Redis/DB staging validation, k6 run and
+  monitoring review are complete.
 
 ## Key Files Created Or Updated
 
@@ -31,6 +46,10 @@ Branch: `mvp/quantalayer-scan`
 - `docs/security_mvp.md`
 - `docs/runbook.md`
 - `docs/loadtest_quantalayer_scan.md`
+- `docs/reports/staging_readiness_audit.md`
+- `scripts/smoke-providers.ts`
+- `scripts/smoke-api.ts`
+- `scripts/smoke-staging.ts`
 
 ## Dependencies Added
 
@@ -42,6 +61,8 @@ Branch: `mvp/quantalayer-scan`
 - `@prisma/client`, `prisma`: database schema, migration and runtime client.
 - `@playwright/test`: e2e web verification.
 - `@sentry/node`: optional API error monitoring when `SENTRY_DSN` is configured.
+- `tsx`: root-level execution of manual smoke scripts.
+- `dotenv`: load `.env` for root-level manual smoke scripts.
 
 Overrides:
 
@@ -80,15 +101,19 @@ Web:
 - `pnpm db:validate`: pass.
 - `prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script`: generated expected SQL.
 - Lighthouse mobile on production Next build for `/`: 100.
+- `pnpm loadtest:scan`: not run in the staging-hardening pass because `k6` is not installed.
+- `pnpm smoke:providers`: not run because `HELIUS_API_KEY` is missing.
+- `pnpm smoke:api`: not run because no local API URL was configured/running for this pass.
+- `pnpm smoke:staging`: not run because `STAGING_URL` is missing.
 
 ## Coverage
 
 `@quantalayer/scoring`:
 
-- Statements: 96.55%
-- Branches: 92.22%
+- Statements: 98.38%
+- Branches: 95.83%
 - Functions: 100%
-- Lines: 96.46%
+- Lines: 98.34%
 
 ## Read-Only And Privacy Checks
 
@@ -101,7 +126,7 @@ Web:
 
 ## Known Limits
 
-- Provider calls are implemented for Helius/Jupiter, but no live provider scan was executed in this environment.
+- Provider calls are implemented for Helius/Jupiter, but no live provider smoke test was executed in this environment.
 - Prisma migration was validated and diffed from empty, but not applied to a live PostgreSQL instance in this environment.
 - k6 script is committed, but k6 is not installed locally, so the 10/50 concurrent-user run was not executed here.
 - Sentry is configured as optional; it requires a real `SENTRY_DSN` in deployment.
@@ -109,4 +134,6 @@ Web:
 
 ## Final Status
 
-MVP implementation is ready for staging deployment and infrastructure validation. Public beta readiness still requires a live PostgreSQL migration, Redis/API/provider smoke test, k6 run, Sentry project setup and operational review.
+MVP implementation is staging-ready after local non-live gates. Public beta readiness still requires
+a live PostgreSQL migration, Redis/API/provider smoke test, k6 run, Sentry project setup and
+operational review.

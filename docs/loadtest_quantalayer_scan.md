@@ -21,6 +21,7 @@ The script is `scripts/loadtest-scan.js`.
 - HTTP error rate.
 - 400, 429 and 502 rates.
 - Redis hit rate where available.
+- Redis rate-limit error rate and latency impact.
 - API process CPU and memory.
 - Provider error counts.
 
@@ -34,3 +35,12 @@ The script is `scripts/loadtest-scan.js`.
 ## Current Verification Status
 
 The script is committed and ready to run. A full 10/50 concurrent-user run requires a running API, Redis and provider configuration. Results must be attached to the beta-readiness review before public beta.
+
+Before public beta, run after the smoke tests:
+
+```bash
+API_URL=https://staging.example.com pnpm loadtest:scan
+```
+
+If Redis fails during the run, `/api/v1/scan` is expected to fail closed rather than bypass rate
+limits.

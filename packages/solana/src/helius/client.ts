@@ -81,31 +81,39 @@ export class HeliusClient {
   }
 
   async getStakeAccountsByAuthority(address: string): Promise<readonly StakeAccount[]> {
-    const result = await this.request("getProgramAccounts", [
-      "Stake11111111111111111111111111111111111111",
-      {
-        encoding: "jsonParsed",
-        filters: [
-          {
-            memcmp: {
-              bytes: address,
-              offset: 44,
-            },
-          },
-        ],
-      },
-    ]);
-    const parsed = stakeAccountsResultSchema.safeParse(result);
+    const accountsByPubkey = new Map<string, { readonly lamports: bigint }>();
 
-    if (!parsed.success) {
-      throw new UpstreamDataError("Invalid Helius stake response", {
-        detail: parsed.error.message,
-      });
+    for (const offset of [12, 44]) {
+      const result = await this.request("getProgramAccounts", [
+        "Stake11111111111111111111111111111111111111",
+        {
+          encoding: "jsonParsed",
+          filters: [
+            {
+              memcmp: {
+                bytes: address,
+                offset,
+              },
+            },
+          ],
+        },
+      ]);
+      const parsed = stakeAccountsResultSchema.safeParse(result);
+
+      if (!parsed.success) {
+        throw new UpstreamDataError("Invalid Helius stake response", {
+          detail: parsed.error.message,
+        });
+      }
+
+      for (const stakeAccount of parsed.data) {
+        accountsByPubkey.set(stakeAccount.pubkey, {
+          lamports: BigInt(stakeAccount.account.lamports),
+        });
+      }
     }
 
-    return parsed.data.map((stakeAccount) => ({
-      lamports: BigInt(stakeAccount.account.lamports),
-    }));
+    return [...accountsByPubkey.values()];
   }
 
   private async request(method: string, params: unknown): Promise<unknown> {

@@ -5,7 +5,7 @@ import { QCI_WEIGHTS, QES_VERSION, QES_WEIGHTS, QCI_VERSION } from "../weights.j
 describe("scoring weights", () => {
   it("exports the normative scoring versions", () => {
     expect(QES_VERSION).toBe("1.1.0");
-    expect(QCI_VERSION).toBe("1.0.0");
+    expect(QCI_VERSION).toBe("1.0.1");
   });
 
   it("keeps QES weights normalized", () => {

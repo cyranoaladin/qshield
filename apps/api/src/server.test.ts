@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { calculateQci } from "@quantalayer/scoring";
-import { UpstreamDataError } from "@quantalayer/shared";
-import { MemoryCache, type RawWalletScan } from "@quantalayer/solana";
+import { QCI_VERSION, QES_VERSION, calculateQci } from "@quantalayer/scoring";
+import {
+  InfrastructureUnavailableError,
+  UpstreamDataError,
+  type ServerEnv,
+} from "@quantalayer/shared";
+import { MemoryCache, type CacheAdapter, type RawWalletScan } from "@quantalayer/solana";
 
 import { MemoryRateLimiter } from "./rate-limit.js";
+import { buildRuntimeScanProvider } from "./runtime-scan-provider.js";
 import { buildServer } from "./server.js";
 import { MemoryScanAggregateStore } from "./storage.js";
 
@@ -98,6 +103,33 @@ describe("buildServer", () => {
     await server.close();
   });
 
+  it("versions scan cache keys by cluster and scoring versions", async () => {
+    const cache = new RecordingCache();
+    const context = testContext({
+      cache,
+      cluster: "devnet",
+    });
+    const server = buildServer(context.options);
+
+    const response = await server.inject({
+      method: "POST",
+      payload: { address: "11111111111111111111111111111111" },
+      url: "/api/v1/scan",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(cache.setKeys).toHaveLength(1);
+    expect(cache.setKeys[0]).toMatch(
+      new RegExp(
+        `^scan:v1:devnet:qes-${escapeRegExp(QES_VERSION)}:qci-${escapeRegExp(
+          QCI_VERSION,
+        )}:[a-f0-9]{64}$`,
+      ),
+    );
+
+    await server.close();
+  });
+
   it("fails closed on provider errors", async () => {
     const context = testContext({
       scanAddress: async () => {
@@ -117,6 +149,35 @@ describe("buildServer", () => {
       code: "UPSTREAM_DATA_ERROR",
       status: 502,
     });
+    expect(context.store.rows()).toHaveLength(0);
+
+    await server.close();
+  });
+
+  it("fails closed before Helius construction when scan provider env is missing", async () => {
+    let heliusConstructed = false;
+    const context = testContext({
+      scanAddress: buildRuntimeScanProvider(serverEnvWithoutHeliusKey(), {
+        createHeliusClient: () => {
+          heliusConstructed = true;
+          throw new Error("Helius should not be constructed");
+        },
+      }).scanAddress,
+    });
+    const server = buildServer(context.options);
+
+    const response = await server.inject({
+      method: "POST",
+      payload: { address: "11111111111111111111111111111111" },
+      url: "/api/v1/scan",
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.json()).toMatchObject({
+      code: "ENV_VALIDATION_ERROR",
+      status: 500,
+    });
+    expect(heliusConstructed).toBe(false);
     expect(context.store.rows()).toHaveLength(0);
 
     await server.close();
@@ -165,6 +226,33 @@ describe("buildServer", () => {
       code: "RATE_LIMIT_ERROR",
       status: 429,
     });
+
+    await server.close();
+  });
+
+  it("fails closed when the scan rate limiter is unavailable", async () => {
+    const context = testContext();
+    const server = buildServer({
+      ...context.options,
+      rateLimiter: {
+        consume: async () => {
+          throw new InfrastructureUnavailableError("Rate limiter unavailable");
+        },
+      },
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      payload: { address: "11111111111111111111111111111111" },
+      url: "/api/v1/scan",
+    });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toMatchObject({
+      code: "INFRASTRUCTURE_UNAVAILABLE",
+      status: 503,
+    });
+    expect(context.calls).toBe(0);
 
     await server.close();
   });
@@ -315,12 +403,14 @@ describe("buildServer", () => {
 
 function testContext(
   overrides: {
+    readonly cache?: CacheAdapter;
+    readonly cluster?: "devnet" | "mainnet-beta";
     readonly rateLimitScansPerMinute?: number;
     readonly scanAddress?: (address: string) => Promise<RawWalletScan>;
   } = {},
 ) {
   let calls = 0;
-  const cache = new MemoryCache();
+  const cache = overrides.cache ?? new MemoryCache();
   const store = new MemoryScanAggregateStore();
   const scanAddress =
     overrides.scanAddress ??
@@ -336,6 +426,7 @@ function testContext(
     },
     options: {
       cache,
+      cluster: overrides.cluster ?? "mainnet-beta",
       corsOrigin: "http://localhost:3000",
       rateLimiter: new MemoryRateLimiter({
         limit: overrides.rateLimitScansPerMinute ?? 10,
@@ -348,6 +439,19 @@ function testContext(
     },
     store,
   };
+}
+
+class RecordingCache extends MemoryCache {
+  readonly setKeys: string[] = [];
+
+  override async set<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
+    this.setKeys.push(key);
+    await super.set(key, value, ttlSeconds);
+  }
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function rawWalletScan(address: string): RawWalletScan {
@@ -377,5 +481,21 @@ function rawWalletScan(address: string): RawWalletScan {
     tokenAccountsCount: 2,
     totalUsd: 50_000,
     warnings: [],
+  };
+}
+
+function serverEnvWithoutHeliusKey(): ServerEnv {
+  return {
+    apiCorsOrigin: "http://localhost:3000",
+    apiPort: 3001,
+    databaseUrl: "postgresql://quantalayer:quantalayer@localhost:5432/quantalayer",
+    heliusRpcUrl: "https://mainnet.helius-rpc.com",
+    jupiterPriceUrl: "https://api.jup.ag/price/v2",
+    logLevel: "silent",
+    nodeEnv: "development",
+    rateLimitScansPerMinute: 10,
+    redisUrl: "redis://localhost:6379",
+    scanCacheTtlSeconds: 3600,
+    solanaCluster: "mainnet-beta",
   };
 }

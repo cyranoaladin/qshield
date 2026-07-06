@@ -29,7 +29,7 @@
     "/api/v1/scan": {
       "post": {
         "summary": "Read-only Solana address scan",
-        "description": "Computes QES and QCI from read-only Solana and price data. No raw address is persisted in aggregates.",
+        "description": "Computes QES 1.1.0 and QCI 1.0.1 from read-only Solana and price data. No raw address is persisted in aggregates.",
         "requestBody": {
           "required": true,
           "content": {
@@ -66,6 +66,9 @@
             "$ref": "#/components/responses/Problem"
           },
           "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
             "$ref": "#/components/responses/Problem"
           }
         }
@@ -254,7 +257,8 @@
             "maximum": 100
           },
           "qciVersion": {
-            "type": "string"
+            "type": "string",
+            "const": "1.0.1"
           },
           "qes": {
             "type": ["integer", "null"],
@@ -262,7 +266,8 @@
             "maximum": 100
           },
           "qesVersion": {
-            "type": "string"
+            "type": "string",
+            "const": "1.1.0"
           },
           "recommendations": {
             "type": "array",
