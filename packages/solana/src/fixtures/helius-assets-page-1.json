@@ -1,0 +1,19 @@
+{
+  "result": {
+    "items": [
+      {
+        "id": "SyntheticMintA11111111111111111111111111",
+        "interface": "FungibleToken",
+        "token_info": {
+          "balance": "10000000",
+          "decimals": 6,
+          "symbol": "SYNTA",
+          "token_program": "spl-token"
+        }
+      }
+    ],
+    "limit": 1,
+    "page": 1,
+    "total": 2
+  }
+}
