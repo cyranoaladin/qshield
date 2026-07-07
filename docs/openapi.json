@@ -1,0 +1,337 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "QuantaLayer Scan API",
+    "version": "0.1.0",
+    "description": "Read-only MVP API for QuantaLayer Scan. The API never requests private keys, seed phrases, or signed transactions."
+  },
+  "servers": [
+    {
+      "url": "https://api.quantalayer.app",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development"
+    }
+  ],
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        }
+      }
+    },
+    "/api/v1/scan": {
+      "post": {
+        "summary": "Read-only Solana address scan",
+        "description": "Computes QES 1.1.0 and QCI 1.0.1 from read-only Solana and price data. No raw address is persisted in aggregates.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["address"],
+                "properties": {
+                  "address": {
+                    "type": "string",
+                    "description": "Base58 Solana public address"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scan result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/stats": {
+      "get": {
+        "summary": "Aggregate scan statistics",
+        "description": "Returns aggregate metrics only. Raw addresses are not returned.",
+        "responses": {
+          "200": {
+            "description": "Aggregate scan statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AggregateStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/waitlist": {
+      "post": {
+        "summary": "Join the QuantaLayer waitlist",
+        "description": "Records an opt-in waitlist entry. Explicit consent is required and duplicate emails are idempotent.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaitlistRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Waitlist entry recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "Problem": {
+        "description": "RFC 7807 problem details",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "AggregateStats": {
+        "type": "object",
+        "required": [
+          "averageQci",
+          "averageQes",
+          "gradeDistribution",
+          "lastScanTimestamp",
+          "totalEstimatedMigrationExposureValueUsd",
+          "totalScans"
+        ],
+        "properties": {
+          "averageQci": {
+            "type": ["number", "null"]
+          },
+          "averageQes": {
+            "type": ["number", "null"]
+          },
+          "gradeDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "lastScanTimestamp": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "totalEstimatedMigrationExposureValueUsd": {
+            "type": "number"
+          },
+          "totalScans": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Problem": {
+        "type": "object",
+        "required": ["code", "status", "title", "type"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ScanResponse": {
+        "type": "object",
+        "required": [
+          "address",
+          "breakdown",
+          "cache",
+          "estimatedMigrationExposureValueUsd",
+          "grade",
+          "gradeDisplayed",
+          "qci",
+          "qciVersion",
+          "qes",
+          "qesVersion",
+          "recommendations",
+          "scannedAt",
+          "status",
+          "warnings"
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "breakdown": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "cache": {
+            "type": "object",
+            "required": ["hit", "ttlSeconds"],
+            "properties": {
+              "hit": {
+                "type": "boolean"
+              },
+              "ttlSeconds": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          },
+          "estimatedMigrationExposureValueUsd": {
+            "type": "number"
+          },
+          "grade": {
+            "type": ["string", "null"],
+            "enum": ["A", "B", "C", "D", "E", "N/A", null]
+          },
+          "gradeDisplayed": {
+            "type": "boolean"
+          },
+          "qci": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "qciVersion": {
+            "type": "string",
+            "const": "1.0.1"
+          },
+          "qes": {
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "qesVersion": {
+            "type": "string",
+            "const": "1.1.0"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scannedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ok", "fragile_estimate", "insufficient_data", "not_applicable"]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WaitlistRequest": {
+        "type": "object",
+        "required": ["consent", "email"],
+        "properties": {
+          "consent": {
+            "type": "boolean",
+            "const": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "wallet": {
+            "type": "string",
+            "description": "Optional Solana address voluntarily provided by the user"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WaitlistResponse": {
+        "type": "object",
+        "required": ["duplicate", "message", "status"],
+        "properties": {
+          "duplicate": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "const": "ok"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

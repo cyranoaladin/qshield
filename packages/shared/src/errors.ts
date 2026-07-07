@@ -1,7 +1,12 @@
 import { PROBLEM_TYPE_BASE_URL } from "./constants.js";
 
 export type ErrorCode =
-  "ENV_VALIDATION_ERROR" | "INTERNAL_SERVER_ERROR" | "UPSTREAM_DATA_ERROR" | "VALIDATION_ERROR";
+  | "ENV_VALIDATION_ERROR"
+  | "INFRASTRUCTURE_UNAVAILABLE"
+  | "INTERNAL_SERVER_ERROR"
+  | "RATE_LIMIT_ERROR"
+  | "UPSTREAM_DATA_ERROR"
+  | "VALIDATION_ERROR";
 
 export type ProblemDetails = {
   readonly code: ErrorCode;
@@ -51,6 +56,28 @@ export class UpstreamDataError extends QuantaLayerError {
       status: 502,
     });
     this.name = "UpstreamDataError";
+  }
+}
+
+export class RateLimitError extends QuantaLayerError {
+  constructor(message: string, options: { readonly detail?: string | undefined } = {}) {
+    super(message, {
+      code: "RATE_LIMIT_ERROR",
+      detail: options.detail,
+      status: 429,
+    });
+    this.name = "RateLimitError";
+  }
+}
+
+export class InfrastructureUnavailableError extends QuantaLayerError {
+  constructor(message: string, options: { readonly detail?: string | undefined } = {}) {
+    super(message, {
+      code: "INFRASTRUCTURE_UNAVAILABLE",
+      detail: options.detail,
+      status: 503,
+    });
+    this.name = "InfrastructureUnavailableError";
   }
 }
 

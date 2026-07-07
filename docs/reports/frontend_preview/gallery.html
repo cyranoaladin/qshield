@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QuantaLayer Frontend Preview</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #f7faf9;
+        --border: #dfe7e5;
+        --foreground: #17202a;
+        --muted: #5f6f6d;
+        --primary: #167f75;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--foreground);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 1480px;
+        padding: 40px 28px 56px;
+      }
+
+      header {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+
+      h1 {
+        font-size: clamp(32px, 5vw, 58px);
+        line-height: 1;
+        margin: 0;
+      }
+
+      p {
+        color: var(--muted);
+        line-height: 1.55;
+        margin: 0;
+      }
+
+      a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .grid {
+        display: grid;
+        gap: 22px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+
+      .shot {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+        padding: 16px;
+      }
+
+      .shot img {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: block;
+        height: 360px;
+        object-fit: contain;
+        object-position: top center;
+        width: 100%;
+      }
+
+      .shot h2 {
+        font-size: 18px;
+        line-height: 1.2;
+        margin: 0;
+      }
+
+      .shot p {
+        font-size: 14px;
+      }
+
+      @media (max-width: 520px) {
+        main {
+          padding: 24px 16px 40px;
+        }
+
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .shot img {
+          height: 280px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p>QuantaLayer Scan MVP</p>
+        <h1>Frontend Preview Gallery</h1>
+        <p>
+          Static, dependency-free visual review pack. Images are synthetic frontend captures with
+          mocked API responses.
+        </p>
+      </header>
+      <section class="grid" aria-label="Frontend screenshots">
+        <article class="shot">
+          <a href="./01-landing-desktop.png">
+            <img alt="Landing desktop" src="./01-landing-desktop.png" />
+          </a>
+          <h2>Landing desktop</h2>
+          <p><a href="./01-landing-desktop.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./02-landing-mobile.png">
+            <img alt="Landing mobile" src="./02-landing-mobile.png" />
+          </a>
+          <h2>Landing mobile</h2>
+          <p><a href="./02-landing-mobile.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./03-scan-result-desktop.png">
+            <img alt="Scan result desktop" src="./03-scan-result-desktop.png" />
+          </a>
+          <h2>Scan result desktop</h2>
+          <p><a href="./03-scan-result-desktop.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./04-scan-result-mobile.png">
+            <img alt="Scan result mobile" src="./04-scan-result-mobile.png" />
+          </a>
+          <h2>Scan result mobile</h2>
+          <p><a href="./04-scan-result-mobile.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./05-scan-low-confidence.png">
+            <img alt="Low confidence" src="./05-scan-low-confidence.png" />
+          </a>
+          <h2>Low confidence</h2>
+          <p><a href="./05-scan-low-confidence.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./06-scan-pda-not-applicable.png">
+            <img alt="PDA not applicable" src="./06-scan-pda-not-applicable.png" />
+          </a>
+          <h2>PDA not applicable</h2>
+          <p><a href="./06-scan-pda-not-applicable.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./07-scan-error.png">
+            <img alt="API error" src="./07-scan-error.png" />
+          </a>
+          <h2>API error</h2>
+          <p><a href="./07-scan-error.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./08-waitlist.png">
+            <img alt="Waitlist" src="./08-waitlist.png" />
+          </a>
+          <h2>Waitlist</h2>
+          <p><a href="./08-waitlist.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./09-learn-why-solana.png">
+            <img alt="Learn why Solana" src="./09-learn-why-solana.png" />
+          </a>
+          <h2>Learn why Solana</h2>
+          <p><a href="./09-learn-why-solana.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./10-stats-dashboard.png">
+            <img alt="Stats dashboard" src="./10-stats-dashboard.png" />
+          </a>
+          <h2>Stats dashboard</h2>
+          <p><a href="./10-stats-dashboard.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./11-og-score-card.png">
+            <img alt="OG score card" src="./11-og-score-card.png" />
+          </a>
+          <h2>OG score card</h2>
+          <p><a href="./11-og-score-card.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./12-waitlist-mobile.png">
+            <img alt="Waitlist mobile" src="./12-waitlist-mobile.png" />
+          </a>
+          <h2>Waitlist mobile</h2>
+          <p><a href="./12-waitlist-mobile.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./13-learn-mobile.png">
+            <img alt="Learn mobile" src="./13-learn-mobile.png" />
+          </a>
+          <h2>Learn mobile</h2>
+          <p><a href="./13-learn-mobile.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./14-stats-mobile.png">
+            <img alt="Stats mobile" src="./14-stats-mobile.png" />
+          </a>
+          <h2>Stats mobile</h2>
+          <p><a href="./14-stats-mobile.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./15-scan-loading.png">
+            <img alt="Scan loading" src="./15-scan-loading.png" />
+          </a>
+          <h2>Scan loading</h2>
+          <p><a href="./15-scan-loading.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./16-waitlist-duplicate.png">
+            <img alt="Waitlist duplicate" src="./16-waitlist-duplicate.png" />
+          </a>
+          <h2>Waitlist duplicate</h2>
+          <p><a href="./16-waitlist-duplicate.png">Open original PNG</a></p>
+        </article>
+
+        <article class="shot">
+          <a href="./17-waitlist-error.png">
+            <img alt="Waitlist error" src="./17-waitlist-error.png" />
+          </a>
+          <h2>Waitlist error</h2>
+          <p><a href="./17-waitlist-error.png">Open original PNG</a></p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

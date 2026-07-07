@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { QuantaLayerError, ValidationError, toProblemJson } from "./errors.js";
+import {
+  InfrastructureUnavailableError,
+  QuantaLayerError,
+  ValidationError,
+  toProblemJson,
+} from "./errors.js";
 
 describe("toProblemJson", () => {
   it("serializes typed errors as RFC 7807 problem details", () => {
@@ -39,6 +44,16 @@ describe("toProblemJson", () => {
       detail: "Helius response did not match schema",
       status: 502,
       title: "Upstream rejected response",
+    });
+  });
+
+  it("serializes infrastructure unavailable errors as 503", () => {
+    const error = new InfrastructureUnavailableError("Rate limiter unavailable");
+
+    expect(toProblemJson(error)).toMatchObject({
+      code: "INFRASTRUCTURE_UNAVAILABLE",
+      status: 503,
+      title: "Rate limiter unavailable",
     });
   });
 });

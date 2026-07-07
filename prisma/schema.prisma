@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scan {
+  id                                  String   @id @default(cuid())
+  addressHash                         String
+  qes                                 Int?
+  qci                                 Int
+  grade                               String?
+  gradeDisplayed                      Boolean
+  status                              String
+  estimatedMigrationExposureValueUsd  Float
+  qesVersion                          String
+  qciVersion                          String
+  createdAt                           DateTime @default(now())
+
+  @@index([addressHash])
+  @@index([createdAt])
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  wallet    String?
+  source    String?
+  consent   Boolean
+  createdAt DateTime @default(now())
+}
+
+model AggregateMetric {
+  id        String   @id @default(cuid())
+  key       String
+  value     Float
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([createdAt])
+}
+

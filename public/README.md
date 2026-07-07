@@ -1,0 +1,1 @@
+Root-level `public/` contains release artifacts generated or consumed by the research-note publication workflow, including the canonical `/articles/research-note-1.pdf` alias and brand images used by the LaTeX source. The Next.js web app serves runtime assets from `apps/web/public`; keep article files synchronized there when the research note is rebuilt.

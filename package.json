@@ -9,27 +9,47 @@
     "pnpm": ">=10.0.0"
   },
   "scripts": {
+    "db:generate": "prisma generate",
+    "db:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://quantalayer:quantalayer@localhost:5432/quantalayer} prisma validate",
     "dev": "pnpm -r --parallel --filter @quantalayer/web --filter @quantalayer/api dev",
     "lint": "prettier --check . && eslint .",
-    "typecheck": "pnpm -r typecheck",
+    "loadtest:scan": "k6 run scripts/loadtest-scan.js",
+    "review:mvp:api": "tsx scripts/mock-mvp-api.ts",
+    "review:mvp:capture": "FRONTEND_PREVIEW=1 NEXT_PUBLIC_API_URL=http://127.0.0.1:3001 pnpm --filter @quantalayer/web exec playwright test e2e/frontend-preview.spec.ts --project=chromium",
+    "review:mvp:web": "NEXT_PUBLIC_API_URL=http://127.0.0.1:3001 pnpm --filter @quantalayer/web dev",
+    "smoke:api": "tsx scripts/smoke-api.ts",
+    "smoke:providers": "tsx scripts/smoke-providers.ts",
+    "smoke:staging": "tsx scripts/smoke-staging.ts",
+    "staging:local:down": "docker compose down",
+    "staging:local:migrate": "pnpm exec prisma migrate deploy",
+    "staging:local:up": "docker compose up -d postgres redis",
+    "typecheck": "pnpm db:generate && pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:coverage": "pnpm -r test:coverage",
-    "build": "pnpm -r build"
+    "build": "pnpm db:generate && pnpm -r build"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
     "@next/eslint-plugin-next": "15.5.20",
+    "@prisma/client": "6.19.0",
+    "@quantalayer/scoring": "workspace:*",
+    "@quantalayer/solana": "workspace:*",
     "@vitest/coverage-v8": "4.1.9",
+    "dotenv": "17.2.3",
     "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.7.0",
     "prettier": "3.9.4",
+    "prisma": "^6.19.0",
+    "tsx": "4.23.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.62.1",
     "vitest": "4.1.9"
   },
   "pnpm": {
     "overrides": {
+      "effect": "3.20.0",
+      "jayson>uuid": "11.1.1",
       "postcss": "8.5.16"
     }
   }

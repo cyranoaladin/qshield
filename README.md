@@ -28,6 +28,34 @@ pnpm dev               # web :3000 · api :3001
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
+## Validation staging locale
+
+PostgreSQL et Redis peuvent être lancés localement sans secrets réels :
+
+```bash
+pnpm staging:local:up
+DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm staging:local:migrate
+DATABASE_URL=postgresql://quantalayer:quantalayer@localhost:55432/quantalayer pnpm db:validate
+```
+
+Le Compose local expose PostgreSQL sur `localhost:55432` et Redis sur `localhost:56379` pour éviter
+les conflits avec des services déjà installés sur les ports standards.
+
+La passe RC complète est scriptée :
+
+```bash
+bash scripts/validate-staging-readiness.sh
+```
+
+Le script écrit `docs/reports/staging_validation_run.md`. Les smoke tests live sont sautés tant que
+les variables nécessaires ne sont pas fournies.
+
+Arrêt local :
+
+```bash
+pnpm staging:local:down
+```
+
 ## Principes non négociables
 
 1. Lecture seule en phase 1 : aucune clé privée ne transite par le système.
@@ -38,4 +66,6 @@ pnpm lint && pnpm typecheck && pnpm test
 
 ## Licence
 
-Propriétaire — © 2026 Money Factory AI LLC. Tous droits réservés. La stratégie open-source sera définie module par module.
+QuantaLayer — Proprietary License
+Copyright (c) 2026 Money Factory AI LLC. All rights reserved.
+This source code is made available for transparency, review and research purposes only. No permission is granted to use, copy, modify, distribute, or create derivative works of this software, in whole or in part, without prior written authorization from Money Factory AI LLC. Individual modules may be released later under open-source licenses; any such release will include its own LICENSE file taking precedence for that module. Third-party dependencies remain under their respective licenses.

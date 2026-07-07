@@ -1,0 +1,20 @@
+{
+  "accountClass": "system",
+  "address": "QuantaLayerHighValue111111111111111111111",
+  "concentrationRatio": 0.8,
+  "confidence": {
+    "accountClassified": 1,
+    "dataFreshness": 1,
+    "defiPositions": 1,
+    "nftCnftCoverage": 1,
+    "resolvedPrices": 1,
+    "rpcDasCompleteness": 1,
+    "stakeAccounts": 1
+  },
+  "daysSinceLastActivity": 400,
+  "observableAgeDays": 2000,
+  "scannedAt": "2026-07-06T00:00:00.000Z",
+  "significantTokenAccounts": 30,
+  "stakedOrLockedUsd": 250000,
+  "totalUsd": 1000000
+}

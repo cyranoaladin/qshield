@@ -8,9 +8,9 @@ The blocking `Verify` job runs on every pull request and every push to `main`:
 
 1. `pnpm install --frozen-lockfile`
 2. `pnpm lint`
-3. `pnpm typecheck`
+3. `pnpm typecheck` (runs `prisma generate` first)
 4. `pnpm test:coverage`
-5. `pnpm build`
+5. `pnpm build` (runs `prisma generate` first)
 
 The workflow uses Node.js 22, pnpm 10.12.1, pnpm store caching through
 `actions/setup-node@v4`, and a concurrency group that cancels superseded runs for the same

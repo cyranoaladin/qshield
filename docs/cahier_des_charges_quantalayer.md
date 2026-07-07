@@ -85,6 +85,11 @@ QCI(a) = round(100 × Σ v_k × c_k(a))
 
 Aucun grade A/B/C/D/E ne doit être affiché si `QCI < 40`.
 
+Si un ou plusieurs facteurs QES ne sont pas observables, QES reste renormalisé sur les facteurs
+observables et QCI est plafonné : 79 pour un facteur manquant, 69 pour deux facteurs manquants, 59
+pour trois facteurs manquants ou plus. Ce comportement correspond à `QCI_VERSION = "1.0.1"` et ne
+remonte jamais un QCI déjà faible.
+
 ### 3.3 Sortie API Cible
 
 ```json
@@ -158,13 +163,12 @@ QuantaLayer publiera au minimum la spécification QES/QCI, les pondérations ver
 
 ## 9. Claims Interdits
 
-- QuantaLayer protects Solana.
-- QuantaLayer makes Solana quantum-safe.
-- QuantaLayer Vault is secure before audits.
-- QuantaLayer is NIST certified.
-- QuantaLayer is ANSSI certified.
-- FIPS 206 is final.
-- SIMD-0461 is active or adopted.
-- QES predicts hacking.
-- QCI guarantees accuracy.
-- Authority Exposure replaces an audit.
+- Ne pas prétendre que QuantaLayer apporte une protection globale à Solana.
+- Ne pas présenter Solana comme rendue sûre face au quantique par QuantaLayer.
+- Ne pas présenter Vault comme sûr ou audité avant audits publics réels.
+- Ne pas revendiquer de certification NIST ou ANSSI.
+- Ne pas présenter FIPS 206 comme final sans source primaire NIST.
+- Ne pas présenter SIMD-0461 comme actif, fusionné, adopté ou trajectoire protocolaire confirmée.
+- Ne pas présenter QES comme une probabilité de piratage.
+- Ne pas présenter QCI comme une garantie d'exactitude.
+- Ne pas présenter Authority Exposure comme un substitut à un audit.

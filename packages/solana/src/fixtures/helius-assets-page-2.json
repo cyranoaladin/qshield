@@ -1,0 +1,19 @@
+{
+  "result": {
+    "items": [
+      {
+        "id": "SyntheticMintB11111111111111111111111111",
+        "interface": "FungibleToken",
+        "token_info": {
+          "balance": "500",
+          "decimals": 0,
+          "symbol": "SYNTB",
+          "token_program": "spl-token"
+        }
+      }
+    ],
+    "limit": 1,
+    "page": 2,
+    "total": 2
+  }
+}

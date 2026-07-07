@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { AddressInput } from "@/components/address-input";
+import { RiskDisclaimer } from "@/components/risk-disclaimer";
 import { getMessages } from "@/i18n/messages";
 import Image from "next/image";
 
@@ -7,7 +9,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-8 px-6 py-16">
+      <section className="mx-auto grid min-h-screen max-w-5xl content-center gap-8 px-6 py-16">
         <div className="flex items-center gap-4">
           <Image
             alt={messages.home.logoAlt}
@@ -26,14 +28,24 @@ export default function HomePage() {
           </h1>
           <p className="text-lg leading-8 text-foreground/70">{messages.home.description}</p>
         </div>
+        <div className="max-w-3xl">
+          <AddressInput copy={messages.home} />
+        </div>
+        <div className="max-w-3xl">
+          <RiskDisclaimer text={messages.home.readOnly} />
+        </div>
         <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <a href="#scan">{messages.home.primaryAction}</a>
+          <Button asChild variant="secondary">
+            <a href="/articles/research-note-1.pdf">{messages.home.secondaryAction}</a>
           </Button>
           <Button asChild variant="secondary">
-            <a href="/articles/article_quantalayer_post_quantum_solana_research_note_1.pdf">
-              {messages.home.secondaryAction}
-            </a>
+            <a href="/learn/why-solana">{messages.learn.title}</a>
+          </Button>
+          <Button asChild variant="secondary">
+            <a href="/waitlist">{messages.waitlist.title}</a>
+          </Button>
+          <Button asChild variant="secondary">
+            <a href="/stats">{messages.home.statsAction}</a>
           </Button>
         </div>
       </section>
