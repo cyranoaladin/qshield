@@ -59,6 +59,12 @@ describe("banned claim compliance", () => {
 
     expect(violations).toEqual([]);
   });
+
+  it("matches banned claims case-insensitively and accent-insensitively", () => {
+    expect(
+      containsExactClaim("Cette formule promet une PREUVE QUÁNTIQUE.", "preuve quantique"),
+    ).toBe(true);
+  });
 });
 
 function extractBannedClaims(markdown: string): string[] {
@@ -106,8 +112,17 @@ function listSourceFiles(directory: string): string[] {
 }
 
 function containsExactClaim(content: string, claim: string): boolean {
-  const escaped = claim.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const normalizedContent = normalizeForClaimsSearch(content);
+  const normalizedClaim = normalizeForClaimsSearch(claim);
+  const escaped = normalizedClaim.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
   const pattern = new RegExp(`(^|[^\\p{L}\\p{N}_-])${escaped}($|[^\\p{L}\\p{N}_-])`, "iu");
 
-  return pattern.test(content);
+  return pattern.test(normalizedContent);
+}
+
+function normalizeForClaimsSearch(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase("fr-FR");
 }
