@@ -19,6 +19,13 @@ QuantaLayer mesure, priorise et prépare la migration post-quantique des comptes
 | `TASKS.md`                               | Backlog en LOTs, phase 0 → phase 1                                     |
 | `.env.example`                           | Variables d'environnement (validées fail-closed au boot)               |
 
+### Internal research notes
+
+| Fichier                                               | Rôle                                                                                             |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `docs/research/quantalayer_macro_context_addendum.md` | Addendum interne macro / CBOM / risques institutionnels. Non-public release material.            |
+| `docs/reports/aybars_article_comparison_audit.md`     | Audit interne de comparaison de l’article LinkedIn d’Aybars Dorman. Non-public release material. |
+
 ## Démarrage rapide
 
 ```bash
