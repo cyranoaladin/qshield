@@ -56,7 +56,7 @@
 ## 8) Repository integration status
 
 - Branch: research/aybars-macro-context-addendum
-- Commit: pending
+- Commit: a2165f6
 - Files created:
   - `docs/research/quantalayer_macro_context_addendum.md`
   - `docs/reports/aybars_article_comparison_audit.md`
